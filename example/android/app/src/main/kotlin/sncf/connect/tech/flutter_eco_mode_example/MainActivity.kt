@@ -1,0 +1,6 @@
+package sncf.connect.tech.flutter_eco_mode_example
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity() {
+}
