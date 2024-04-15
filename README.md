@@ -10,32 +10,63 @@ This plugin is still in reflexion and development. And will only be available fo
 Next this plugin will have the objective to propose solutions to deactivate functionalities of the device to
 save energy. For example, disable animations or other nonessential resourceful operations...
 
-
 ## Why this plugin?
 
 We are developing this plugin, to perhaps implementing it on the SNCF Connect application, and offering an
 eco-friendly app to our users who have low-end devices to allow them to save the resources of their phone. And
 also to offer a less energy-consuming app.
 
-
 ## Features
 
-| Feature                   | Android        | iOS            | Runtime | Event |
-|---------------------------|----------------|----------------|---------|-------|
-| getPlatformInfo()         | Yes            | Yes            |         |       |
-| getBatteryLevel()         | Yes            | Yes            | X       |       |
-| getBatteryState()         | No             | Yes            | X       |       |
-| isBatteryInLowPowerMode() | Yes            | Yes            | X       |       |
-| lowPowerModeEventStream() | Yes            | Yes            | X       | X     |
-| getThermalState()         | Yes            | Yes            | X       |       |
-| getProcessorCount()       | Yes            | Yes            |         |       |
-| getTotalMemory()          | Yes            | Yes            |         |       |
-| getFreeMemory()           | Yes            | Yes            | X       |       |
-| getTotalStorage()         | Yes            | Yes            |         |       |
-| getFreeStorage()          | Yes            | Yes            | X       |       |
-| isLowEndDevice()          | Yes            | Yes            | X       |       |
+| Feature                                                                                      |                 Android                 |                   iOS                   |                Runtime                | Event |
+|:---------------------------------------------------------------------------------------------|:---------------------------------------:|:---------------------------------------:|:-------------------------------------:|:-----:|
+| getPlatformInfo()                                                                            |                   Yes                   |                   Yes                   |                                       |       |
+| getBatteryLevel()                                                                            |                   Yes                   |                   Yes                   |                   X                   |       |
+| getBatteryState()                                                                            |                   No                    |                   Yes                   |                   X                   |       |
+| isBatteryInLowPowerMode()                                                                    |                   Yes                   |                   Yes                   |                   X                   |       |
+| lowPowerModeEventStream()                                                                    |                   Yes                   |                   Yes                   |                   X                   |   X   |
+| getThermalState()                                                                            |                   Yes                   |                   Yes                   |                   X                   |       |
+| getProcessorCount()                                                                          |                   Yes                   |                   Yes                   |                                       |       |
+| getTotalMemory()                                                                             |                   Yes                   |                   Yes                   |                                       |       |
+| getFreeMemory()                                                                              |                   Yes                   |                   Yes                   |                   X                   |       |
+| getTotalStorage()                                                                            |                   Yes                   |                   Yes                   |                                       |       |
+| getFreeStorage()                                                                             |                   Yes                   |                   Yes                   |                   X                   |       |
+| <span style="color: #3CB371">**isBatteryEcoMode()**</span>                                   | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> |       |
+| <span style="color: #3CB371">**getEcoRange**()</span>                                        | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> |       |
 
 
+## Eco Mode
+### Battery Eco Mode
+
+This feature combines different battery information to determine if the device is in **_eco-mode_** or not. 
+It will return a boolean.
+
+```
+Future.wait([
+      _isNotEnoughBattery(),
+      _isBatteryLowPowerMode(),
+      _isSeriousAtLeastBatteryState(),
+    ])
+``` 
+### Eco Range
+This feature gives the possibility to calculate an Eco Score for the device. 
+The score is calculated by combining static information about the device on different OS.
+It will return a double between 0 and 1.
+
+Then we can determine the device Eco Range:
+- High End
+- Mid Range
+- Low End
+
+Low-end devices means devices with poor capacities or poor features, usually old devices or low-cost devices.
+
+And finally, you can use the last boolean information **_isLowEndDevice_** to directly know if your device is a low-end device or not.
+
+#### Not really convinced by the Eco Range?
+
+That's why we give you the possibility to calculate your own Eco Score by using others features in the plugin.
+If you have more than three eco ranges in your custom eco-mode, 
+feel free to give the best user eco experience to your final users :)
 
 ## Example
 

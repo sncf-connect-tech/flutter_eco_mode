@@ -24,7 +24,10 @@ class FlutterEcoModePlugin : FlutterPlugin, EcoModeApi, EventChannel.StreamHandl
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         EcoModeApi.setUp(flutterPluginBinding.binaryMessenger, this)
         context = flutterPluginBinding.applicationContext
-        EventChannel(flutterPluginBinding.binaryMessenger, lowPowerModeEventChannel).setStreamHandler(this)
+        EventChannel(
+            flutterPluginBinding.binaryMessenger,
+            lowPowerModeEventChannel
+        ).setStreamHandler(this)
     }
 
     override fun onDetachedFromEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -125,19 +128,16 @@ class FlutterEcoModePlugin : FlutterPlugin, EcoModeApi, EventChannel.StreamHandl
         return blockSizeLong * availableBlocksLong
     }
 
-    // TODO: not definitive, algo to update => to confirm
-    override fun isLowEndDevice(): Boolean {
-        var score = 0
+    override fun getEcoScore(): Double {
+        val nbrParams = 4
+        var score = nbrParams
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) score++
-        if (getBatteryLevel() <= 10) score++
-        if (getBatteryState() == BatteryState.DISCHARGING) score++
-        if (isBatteryInLowPowerMode()) score++
-        if (getTotalMemory() <= 1_000_000_000) score++
-        if (getProcessorCount() <= 2) score++
-        if (getTotalStorage() <= 16_000_000_000) score++
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) score--
+        if (getTotalMemory() <= 1_000_000_000) score--
+        if (getProcessorCount() <= 2) score--
+        if (getTotalStorage() <= 16_000_000_000) score--
 
-        return score >= 5
+        return (score / nbrParams).toDouble()
     }
 
     private fun getBatteryStatus(): Intent? {

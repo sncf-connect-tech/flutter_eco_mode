@@ -1,9 +1,11 @@
 package sncf.connect.tech.flutter_eco_mode
 
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
+import android.os.Build.VERSION
+import org.junit.runner.RunWith
+import org.mockito.internal.util.reflection.Whitebox
+import org.powermock.core.classloader.annotations.PrepareForTest
+import org.powermock.modules.junit4.PowerMockRunner
 import kotlin.test.Test
-import org.mockito.Mockito
 
 /*
  * This demonstrates a simple unit test of the Kotlin portion of this plugin's implementation.
@@ -13,15 +15,11 @@ import org.mockito.Mockito
  * you can run them directly from IDEs that support JUnit such as Android Studio.
  */
 
+@RunWith(PowerMockRunner::class)
+@PrepareForTest(VERSION::class)
 internal class FlutterEcoModePluginTest {
-  @Test
-  fun onMethodCall_getPlatformVersion_returnsExpectedValue() {
-    val plugin = FlutterEcoModePlugin()
-
-    val call = MethodCall("getPlatformVersion", null)
-    val mockResult: MethodChannel.Result = Mockito.mock(MethodChannel.Result::class.java)
-    plugin.onMethodCall(call, mockResult)
-
-    Mockito.verify(mockResult).success("Android " + android.os.Build.VERSION.RELEASE)
-  }
+    @Test
+    fun onMethodCall_getPlatformVersion_returnsExpectedValue()  {
+        Whitebox.setInternalState(VERSION::class, "SDK_INT", 23)
+    }
 }

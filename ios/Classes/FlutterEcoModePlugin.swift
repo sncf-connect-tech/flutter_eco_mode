@@ -3,6 +3,22 @@ import UIKit
 import NotificationCenter
 
 public class FlutterEcoModePlugin: NSObject, FlutterPlugin, EcoModeApi {
+    func getEcoScore() throws -> Double? {
+        //TODO vérifier l'OS, si en dessous de iphone 8 score --
+        let nbrParams = 3
+        var score = nbrParams
+        
+        let totalMemory = try getTotalMemory()
+        let processorcount = try getProcessorCount()
+        let totalStorage = try getTotalStorage()
+        
+        if (totalMemory <= 1_000_000_000) {  score = score - 1 }
+        if (processorcount <= 2) {  score = score - 1 }
+        if (totalStorage <= 16_000_000_000) {  score = score - 1 }
+            
+        return Double(score / nbrParams)
+    }
+    
     
     static let lowPowerModeEventChannelName = "sncf.connect.tech/battery.isLowPowerMode"
     fileprivate var eventSink: FlutterEventSink?
@@ -105,32 +121,6 @@ public class FlutterEcoModePlugin: NSObject, FlutterPlugin, EcoModeApi {
             return storage
         } catch {
             print("Error retrieving capacity: \(error.localizedDescription)")
-            throw error
-        }
-    }
-    
-    // TODO: not definitive, algo to update => to confirm
-    func isLowEndDevice() throws -> Bool {
-        var score = 0
-        do {
-            let batteryLevel = try getBatteryLevel()
-            let batteryState = try getBatteryState()
-            let isBatteryInLowMode = try isBatteryInLowPowerMode()
-            let totalMemory = try getTotalMemory()
-            let processorcount = try getProcessorCount()
-            let totalStorage = try getTotalStorage()
-            
-            
-            if (batteryLevel <= 0.1) { score += 1 }
-            if (batteryState == BatteryState.discharging) { score += 1 }
-            if (isBatteryInLowMode) { score += 1 }
-            if (totalMemory <= 1_000_000_000) { score += 1 }
-            if (processorcount <= 2) { score += 1 }
-            if (totalStorage <= 16_000_000_000) { score += 1 }
-            
-            return score >= 1
-        } catch {
-            print("An error has occur")
             throw error
         }
     }

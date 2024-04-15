@@ -34,7 +34,7 @@ abstract class FlutterEcoModePlatform extends PlatformInterface {
   Future<BatteryState> getBatteryState();
 
   /// Return the current battery save mode.
-  Future<bool> isBatteryInLowPowerMode();
+  Future<bool?> isBatteryInLowPowerMode();
 
   /// Return a stream of battery save mode change.
   Stream<bool> get lowPowerModeEventStream;
@@ -57,7 +57,23 @@ abstract class FlutterEcoModePlatform extends PlatformInterface {
   /// Return the available disk space.
   Future<int?> getFreeStorage();
 
-  /// Return if device is Low End Device
-  /// This method is the rules we *recommend* to determine if a device is low end or not
-  Future<bool> isLowEndDevice();
+  /// Return if the battery is in eco mode.
+  Future<bool?> isBatteryEcoMode();
+
+  /// Return the eco range.
+  Future<EcoRange?> getEcoRange();
 }
+
+class EcoRange {
+  double score;
+  DeviceEcoRange range;
+  bool isLowEndDevice;
+
+  EcoRange({
+    required this.score,
+    required this.range,
+    this.isLowEndDevice = false,
+  });
+}
+
+enum DeviceEcoRange { lowEnd, midRange, highEnd }
