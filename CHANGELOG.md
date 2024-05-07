@@ -1,3 +1,9 @@
+## 0.2.0
+
+> Add Eco Mode Stream   
+
+- **FEAT**: Add eco mode stream `isBatteryEcoModeStream`.
+
 ## 0.0.1
 
 > Initial release   
