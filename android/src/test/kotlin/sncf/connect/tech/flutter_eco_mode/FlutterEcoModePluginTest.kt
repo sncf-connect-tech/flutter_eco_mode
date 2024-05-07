@@ -2,7 +2,6 @@ package sncf.connect.tech.flutter_eco_mode
 
 import android.os.Build.VERSION
 import org.junit.runner.RunWith
-import org.mockito.internal.util.reflection.Whitebox
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
 import kotlin.test.Test
@@ -20,6 +19,5 @@ import kotlin.test.Test
 internal class FlutterEcoModePluginTest {
     @Test
     fun onMethodCall_getPlatformVersion_returnsExpectedValue()  {
-        Whitebox.setInternalState(VERSION::class, "SDK_INT", 23)
     }
 }

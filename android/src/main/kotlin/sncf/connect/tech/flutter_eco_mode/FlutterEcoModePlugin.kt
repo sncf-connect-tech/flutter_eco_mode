@@ -129,7 +129,7 @@ class FlutterEcoModePlugin : FlutterPlugin, EcoModeApi, EventChannel.StreamHandl
     }
 
     override fun getEcoScore(): Double {
-        val nbrParams = 4
+        val nbrParams = 4.0
         var score = nbrParams
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) score--
@@ -137,7 +137,7 @@ class FlutterEcoModePlugin : FlutterPlugin, EcoModeApi, EventChannel.StreamHandl
         if (getProcessorCount() <= 2) score--
         if (getTotalStorage() <= 16_000_000_000) score--
 
-        return (score / nbrParams).toDouble()
+        return score / nbrParams
     }
 
     private fun getBatteryStatus(): Intent? {

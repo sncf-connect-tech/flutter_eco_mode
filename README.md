@@ -49,8 +49,10 @@ Future.wait([
     ])
 ``` 
 ### Eco Range
-This feature gives the possibility to calculate an Eco Score for the device. 
-The score is calculated by combining static information about the device on different OS.
+This feature gives the possibility to calculate a score for the device.
+The score does NOT represent an ecological performance. 
+It's just a score to determine the device's capacities.
+It is calculated by combining static information about the device on different OS.
 It will return a double between 0 and 1.
 
 Then we can determine the device Eco Range:
@@ -64,7 +66,7 @@ And finally, you can use the last boolean information **_isLowEndDevice_** to di
 
 #### Not really convinced by the Eco Range?
 
-That's why we give you the possibility to calculate your own Eco Score by using others features in the plugin.
+That's why we give you the possibility to calculate your own score by using others features in the plugin.
 If you have more than three eco ranges in your custom eco-mode, 
 feel free to give the best user eco experience to your final users :)
 

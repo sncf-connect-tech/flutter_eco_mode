@@ -28,7 +28,13 @@ class _ResultsState extends State<Results> {
         _ResultLine(label: 'Battery level', widget: _ResultFuture(plugin.getBatteryLevelPercent)),
         _ResultLine(label: 'Battery state', widget: _ResultFuture(plugin.getBatteryStateName)),
         _ResultLine(label: 'Is battery in low power mode', widget: _ResultFuture(plugin.isBatteryEcoMode)),
-        _ResultLine(label: 'Low power mode event stream', widget: _ResultStream(plugin.lowPowerModeEventStream)),
+        _ResultLine(
+          label: 'Low power mode event stream',
+          widget: _ResultStream(
+            plugin.lowPowerModeEventStream,
+            initialFuture: plugin.isBatteryEcoMode,
+          ),
+        ),
         _ResultLine(label: 'Thermal state', widget: _ResultFuture(plugin.getThermalStateName)),
         _ResultLine(label: 'Processor count', widget: _ResultFuture(plugin.getProcessorCount)),
         _ResultLine(label: 'Total memory', widget: _ResultFuture(plugin.getTotalMemory)),
@@ -36,7 +42,7 @@ class _ResultsState extends State<Results> {
         _ResultLine(label: 'Total storage', widget: _ResultFuture(plugin.getTotalStorage)),
         _ResultLine(label: 'Free storage', widget: _ResultFuture(plugin.getFreeStorage)),
         _ResultLine(label: 'Is battery in eco mode', widget: _ResultFuture(plugin.isBatteryEcoMode)),
-        _ResultLine(label: 'Eco score', widget: _ResultFuture(ecoRange.getScore)),
+        _ResultLine(label: 'Eco range score', widget: _ResultFuture(ecoRange.getScore)),
         _ResultLine(label: 'Device eco range', widget: _ResultFuture(ecoRange.getRange)),
         _ResultLine(label: 'Is low end device', widget: _ResultFuture(ecoRange.isLowEndDevice)),
       ],
@@ -52,12 +58,12 @@ extension on FlutterEcoMode {
   Future<String> getFreeMemoryReachable() =>
       getFreeMemory().then((value) => value > 0 ? value.toString() : "not reachable");
 
-  Future<String> getBatteryLevelPercent() => getBatteryLevel()
-      .then((value) => value != null && value >= 0 ? (value.toInt() * 100).toString() : "not reachable");
+  Future<String> getBatteryLevelPercent() =>
+      getBatteryLevel().then((value) => value != null && value > 0 ? "${value.toInt()} %" : "not reachable");
 }
 
 extension on Future<EcoRange?> {
-  Future<String?> getScore() => then((value) => value?.score != null ? "${value!.score.toInt() * 100}/100" : null);
+  Future<String?> getScore() => then((value) => value?.score != null ? "${(value!.score * 100).toInt()}/100" : null);
 
   Future<String?> getRange() => then((value) => value?.range.name);
 
@@ -74,16 +80,37 @@ class _ResultLine {
   });
 }
 
-class _ResultStream<T> extends StatelessWidget {
+class _ResultStream<T> extends StatefulWidget {
   final Stream<T> resultStream;
+  final Future<T> Function() initialFuture;
 
-  const _ResultStream(this.resultStream);
+  const _ResultStream(this.resultStream, {required this.initialFuture});
+
+  @override
+  State<_ResultStream<T>> createState() => _ResultStreamState<T>();
+}
+
+class _ResultStreamState<T> extends State<_ResultStream<T>> {
+  late Future<T> future;
+
+  @override
+  void initState() {
+    future = widget.initialFuture().timeout(const Duration(seconds: 3));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: resultStream.timeout(const Duration(seconds: 1)),
-      builder: (_, snapshot) => _ResultAsync(snapshot),
+    return FutureBuilder(
+      future: future,
+      builder: (_, snapshot) => _ResultAsync(
+        snapshot,
+        widgetBuilder: () => StreamBuilder(
+          stream: widget.resultStream,
+          initialData: snapshot.data,
+          builder: (_, snapshot) => _ResultAsync(snapshot),
+        ),
+      ),
     );
   }
 }
@@ -102,7 +129,7 @@ class _ResultFutureState<T> extends State<_ResultFuture<T>> {
 
   @override
   void initState() {
-    future = widget.futureFunction().timeout(const Duration(seconds: 1));
+    future = widget.futureFunction().timeout(const Duration(seconds: 3));
     super.initState();
   }
 
@@ -117,13 +144,14 @@ class _ResultFutureState<T> extends State<_ResultFuture<T>> {
 
 class _ResultAsync<T> extends StatelessWidget {
   final AsyncSnapshot<T> snapshot;
+  final Widget Function()? widgetBuilder;
 
-  const _ResultAsync(this.snapshot);
+  const _ResultAsync(this.snapshot, {this.widgetBuilder});
 
   @override
   Widget build(BuildContext context) {
     if (snapshot.hasData && snapshot.data != null) {
-      return Text('${snapshot.data}');
+      return widgetBuilder?.call() ?? Text('${snapshot.data}');
     } else if (snapshot.hasError) {
       return const Text('not reachable');
     } else {
