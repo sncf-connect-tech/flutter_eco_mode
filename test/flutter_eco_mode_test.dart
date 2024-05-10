@@ -14,7 +14,8 @@ void main() {
         expect(await ecoMode.isBatteryEcoMode(), false);
       });
 
-      test('should return true when not enough battery and discharging', () async {
+      test('should return true when not enough battery and discharging',
+          () async {
         final fakePlatform = FlutterEcoModeTest(
           batteryLevel: minEnoughBattery - 1,
           batteryState: BatteryState.discharging,
@@ -50,7 +51,9 @@ void main() {
         expect(await fakePlatform.isBatteryEcoMode(), true);
       });
 
-      test('should return true when thermal state is serious and battery level is in error', () async {
+      test(
+          'should return true when thermal state is serious and battery level is in error',
+          () async {
         final fakePlatform = FlutterEcoModeTest(
           thermalState: ThermalState.serious,
           getBatteryLevelFuture: () => Future.error('error battery level'),
@@ -58,7 +61,9 @@ void main() {
         expect(await fakePlatform.isBatteryEcoMode(), true);
       });
 
-      test('should return false when thermal state is safe and battery level is in error', () async {
+      test(
+          'should return false when thermal state is safe and battery level is in error',
+          () async {
         final fakePlatform = FlutterEcoModeTest(
           thermalState: ThermalState.safe,
           getBatteryLevelFuture: () => Future.error('error battery level'),
@@ -70,7 +75,8 @@ void main() {
         final fakePlatform = FlutterEcoModeTest(
           getThermalStateFuture: () => Future.error('error thermal state'),
           getBatteryLevelFuture: () => Future.error('error battery level'),
-          isBatteryInLowPowerModeFuture: () => Future.error('error battery low power mode'),
+          isBatteryInLowPowerModeFuture: () =>
+              Future.error('error battery low power mode'),
           getBatteryStateFuture: () => Future.error('error battery state'),
         );
         expect(await fakePlatform.isBatteryEcoMode(), null);

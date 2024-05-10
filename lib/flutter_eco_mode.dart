@@ -15,7 +15,8 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
 
   FlutterEcoMode({EcoModeApi? api}) : _api = api ?? EcoModeApi();
 
-  static const eventChannel = EventChannel('sncf.connect.tech/battery.isLowPowerMode');
+  static const eventChannel =
+      EventChannel('sncf.connect.tech/battery.isLowPowerMode');
 
   @override
   Future<String?> getPlatformInfo() async {
@@ -84,7 +85,10 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
         throw Exception('Error while getting eco score');
       }
       final range = _buildRange(value);
-      return EcoRange(score: value, range: range, isLowEndDevice: range == DeviceEcoRange.lowEnd);
+      return EcoRange(
+          score: value,
+          range: range,
+          isLowEndDevice: range == DeviceEcoRange.lowEnd);
     }).onError((error, stackTrace) {
       log(stackTrace.toString(), error: error);
       return null;
@@ -124,7 +128,8 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
       return Future.wait([
         Future<bool?>.value((await getBatteryLevel())?.isNotEnough),
         Future<bool?>.value((await getBatteryState()).isDischarging),
-      ]).then((List<bool?> value) => value.every((bool? element) => element ?? false));
+      ]).then((List<bool?> value) =>
+          value.every((bool? element) => element ?? false));
     } catch (error, stackTrace) {
       log(stackTrace.toString(), error: error);
       return null;
@@ -159,5 +164,6 @@ extension on BatteryState {
 }
 
 extension on ThermalState {
-  bool get isSeriousAtLeast => this == ThermalState.serious || this == ThermalState.critical;
+  bool get isSeriousAtLeast =>
+      this == ThermalState.serious || this == ThermalState.critical;
 }

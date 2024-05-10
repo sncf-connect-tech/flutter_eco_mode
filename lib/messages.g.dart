@@ -25,12 +25,16 @@ enum BatteryState {
 enum ThermalState {
   /// nominal value
   safe,
+
   /// device is getting warm, but not under throttling
   fair,
+
   /// device is getting warm and performance is throttled
   serious,
+
   /// performance is throttled, device is too hot
   critical,
+
   /// unknown state
   unknown,
 }
@@ -39,18 +43,23 @@ class EcoModeApi {
   /// Constructor for [EcoModeApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  EcoModeApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+  EcoModeApi(
+      {BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
       : __pigeon_binaryMessenger = binaryMessenger,
-        __pigeon_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+        __pigeon_messageChannelSuffix =
+            messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? __pigeon_binaryMessenger;
 
-  static const MessageCodec<Object?> pigeonChannelCodec = StandardMessageCodec();
+  static const MessageCodec<Object?> pigeonChannelCodec =
+      StandardMessageCodec();
 
   final String __pigeon_messageChannelSuffix;
 
   Future<String> getPlatformInfo() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getPlatformInfo$__pigeon_messageChannelSuffix';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    final String __pigeon_channelName =
+        'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getPlatformInfo$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -76,8 +85,10 @@ class EcoModeApi {
   }
 
   Future<double> getBatteryLevel() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getBatteryLevel$__pigeon_messageChannelSuffix';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    final String __pigeon_channelName =
+        'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getBatteryLevel$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -103,8 +114,10 @@ class EcoModeApi {
   }
 
   Future<BatteryState> getBatteryState() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getBatteryState$__pigeon_messageChannelSuffix';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    final String __pigeon_channelName =
+        'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getBatteryState$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -130,8 +143,10 @@ class EcoModeApi {
   }
 
   Future<bool> isBatteryInLowPowerMode() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.isBatteryInLowPowerMode$__pigeon_messageChannelSuffix';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    final String __pigeon_channelName =
+        'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.isBatteryInLowPowerMode$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -157,8 +172,10 @@ class EcoModeApi {
   }
 
   Future<ThermalState> getThermalState() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getThermalState$__pigeon_messageChannelSuffix';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    final String __pigeon_channelName =
+        'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getThermalState$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -184,8 +201,10 @@ class EcoModeApi {
   }
 
   Future<int> getProcessorCount() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getProcessorCount$__pigeon_messageChannelSuffix';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    final String __pigeon_channelName =
+        'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getProcessorCount$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -211,8 +230,10 @@ class EcoModeApi {
   }
 
   Future<int> getTotalMemory() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getTotalMemory$__pigeon_messageChannelSuffix';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    final String __pigeon_channelName =
+        'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getTotalMemory$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -238,8 +259,10 @@ class EcoModeApi {
   }
 
   Future<int> getFreeMemory() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getFreeMemory$__pigeon_messageChannelSuffix';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    final String __pigeon_channelName =
+        'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getFreeMemory$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -265,8 +288,10 @@ class EcoModeApi {
   }
 
   Future<int> getTotalStorage() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getTotalStorage$__pigeon_messageChannelSuffix';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    final String __pigeon_channelName =
+        'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getTotalStorage$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -292,8 +317,10 @@ class EcoModeApi {
   }
 
   Future<int> getFreeStorage() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getFreeStorage$__pigeon_messageChannelSuffix';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    final String __pigeon_channelName =
+        'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getFreeStorage$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,
@@ -319,8 +346,10 @@ class EcoModeApi {
   }
 
   Future<double?> getEcoScore() async {
-    final String __pigeon_channelName = 'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getEcoScore$__pigeon_messageChannelSuffix';
-    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+    final String __pigeon_channelName =
+        'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getEcoScore$__pigeon_messageChannelSuffix';
+    final BasicMessageChannel<Object?> __pigeon_channel =
+        BasicMessageChannel<Object?>(
       __pigeon_channelName,
       pigeonChannelCodec,
       binaryMessenger: __pigeon_binaryMessenger,

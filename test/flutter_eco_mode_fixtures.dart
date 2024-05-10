@@ -35,20 +35,27 @@ class FlutterEcoModeTest extends FlutterEcoMode {
 
   @override
   Future<double?> getBatteryLevel() =>
-      getBatteryLevelFuture?.call() ?? Future.delayed(Duration(milliseconds: batteryLevelMsDelay), () => batteryLevel);
+      getBatteryLevelFuture?.call() ??
+      Future.delayed(
+          Duration(milliseconds: batteryLevelMsDelay), () => batteryLevel);
 
   @override
   Future<bool?> isBatteryInLowPowerMode() =>
       isBatteryInLowPowerModeFuture?.call() ??
-      Future.delayed(Duration(milliseconds: isBatteryInLowPowerModeMsDelay), () => isBatteryLowPowerMode);
+      Future.delayed(Duration(milliseconds: isBatteryInLowPowerModeMsDelay),
+          () => isBatteryLowPowerMode);
 
   @override
   Future<BatteryState> getBatteryState() =>
-      getBatteryStateFuture?.call() ?? Future.delayed(Duration(milliseconds: batteryStateMsDelay), () => batteryState);
+      getBatteryStateFuture?.call() ??
+      Future.delayed(
+          Duration(milliseconds: batteryStateMsDelay), () => batteryState);
 
   @override
   Future<ThermalState> getThermalState() =>
-      getThermalStateFuture?.call() ?? Future.delayed(Duration(milliseconds: thermalStateMsDelay), () => thermalState);
+      getThermalStateFuture?.call() ??
+      Future.delayed(
+          Duration(milliseconds: thermalStateMsDelay), () => thermalState);
 }
 
 class EcoModeApiTest extends EcoModeApi {
@@ -61,5 +68,6 @@ class EcoModeApiTest extends EcoModeApi {
   });
 
   @override
-  Future<double?> getEcoScore() => getEcoScoreFuture?.call() ?? Future.value(ecoScore);
+  Future<double?> getEcoScore() =>
+      getEcoScoreFuture?.call() ?? Future.value(ecoScore);
 }

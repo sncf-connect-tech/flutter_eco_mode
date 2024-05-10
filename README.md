@@ -1,3 +1,7 @@
+[![pub package](https://img.shields.io/pub/v/flutter_google_wallet.svg)](https://pub.dev/packages/flutter_eco_mode)
+[![Test](https://github.com/voyages-sncf-technologies/flutter_eco_mode/actions/workflows/test.yaml/badge.svg)](https://github.com/voyages-sncf-technologies/flutter_eco_mode/actions/workflows/test.yaml)
+[![codecov](https://codecov.io/gh/voyages-sncf-technologies/flutter_eco_mode/branch/main/graph/badge.svg)](https://codecov.io/gh/voyages-sncf-technologies/flutter_eco_mode)
+
 # flutter_eco_mode
 
 A Flutter plugin to help implementing custom eco-friendly mode in your mobile app. This plugin will tell you if a device
