@@ -1,7 +1,7 @@
 name: flutter_eco_mode
-description: "A new Flutter project."
+description: "A Flutter plugin to help implementing custom eco-friendly mode in your mobile app."
 version: 0.0.1
-homepage:
+homepage: https://github.com/sncf-connect-tech/flutter_eco_mode
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
