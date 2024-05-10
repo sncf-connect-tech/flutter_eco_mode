@@ -24,10 +24,18 @@ class _ResultsState extends State<Results> {
   Widget build(BuildContext context) {
     return _ResultsView(
       [
-        _ResultLine(label: 'Platform info', widget: _ResultFuture(plugin.getPlatformInfo)),
-        _ResultLine(label: 'Battery level', widget: _ResultFuture(plugin.getBatteryLevelPercent)),
-        _ResultLine(label: 'Battery state', widget: _ResultFuture(plugin.getBatteryStateName)),
-        _ResultLine(label: 'Is battery in low power mode', widget: _ResultFuture(plugin.isBatteryEcoMode)),
+        _ResultLine(
+            label: 'Platform info',
+            widget: _ResultFuture(plugin.getPlatformInfo)),
+        _ResultLine(
+            label: 'Battery level',
+            widget: _ResultFuture(plugin.getBatteryLevelPercent)),
+        _ResultLine(
+            label: 'Battery state',
+            widget: _ResultFuture(plugin.getBatteryStateName)),
+        _ResultLine(
+            label: 'Is battery in low power mode',
+            widget: _ResultFuture(plugin.isBatteryEcoMode)),
         _ResultLine(
           label: 'Low power mode event stream',
           widget: _ResultStream(
@@ -35,39 +43,62 @@ class _ResultsState extends State<Results> {
             initialFuture: plugin.isBatteryEcoMode,
           ),
         ),
-        _ResultLine(label: 'Thermal state', widget: _ResultFuture(plugin.getThermalStateName)),
-        _ResultLine(label: 'Processor count', widget: _ResultFuture(plugin.getProcessorCount)),
-        _ResultLine(label: 'Total memory', widget: _ResultFuture(plugin.getTotalMemory)),
-        _ResultLine(label: 'Free memory', widget: _ResultFuture(plugin.getFreeMemoryReachable)),
-        _ResultLine(label: 'Total storage', widget: _ResultFuture(plugin.getTotalStorage)),
-        _ResultLine(label: 'Free storage', widget: _ResultFuture(plugin.getFreeStorage)),
-        _ResultLine(label: 'Is battery in eco mode', widget: _ResultFuture(plugin.isBatteryEcoMode)),
-        _ResultLine(label: 'Eco range score', widget: _ResultFuture(ecoRange.getScore)),
-        _ResultLine(label: 'Device eco range', widget: _ResultFuture(ecoRange.getRange)),
-        _ResultLine(label: 'Is low end device', widget: _ResultFuture(ecoRange.isLowEndDevice)),
+        _ResultLine(
+            label: 'Thermal state',
+            widget: _ResultFuture(plugin.getThermalStateName)),
+        _ResultLine(
+            label: 'Processor count',
+            widget: _ResultFuture(plugin.getProcessorCount)),
+        _ResultLine(
+            label: 'Total memory',
+            widget: _ResultFuture(plugin.getTotalMemory)),
+        _ResultLine(
+            label: 'Free memory',
+            widget: _ResultFuture(plugin.getFreeMemoryReachable)),
+        _ResultLine(
+            label: 'Total storage',
+            widget: _ResultFuture(plugin.getTotalStorage)),
+        _ResultLine(
+            label: 'Free storage',
+            widget: _ResultFuture(plugin.getFreeStorage)),
+        _ResultLine(
+            label: 'Is battery in eco mode',
+            widget: _ResultFuture(plugin.isBatteryEcoMode)),
+        _ResultLine(
+            label: 'Eco range score', widget: _ResultFuture(ecoRange.getScore)),
+        _ResultLine(
+            label: 'Device eco range',
+            widget: _ResultFuture(ecoRange.getRange)),
+        _ResultLine(
+            label: 'Is low end device',
+            widget: _ResultFuture(ecoRange.isLowEndDevice)),
       ],
     );
   }
 }
 
 extension on FlutterEcoMode {
-  Future<String> getBatteryStateName() => getBatteryState().then((value) => value.name);
+  Future<String> getBatteryStateName() =>
+      getBatteryState().then((value) => value.name);
 
-  Future<String> getThermalStateName() => getThermalState().then((value) => value.name);
+  Future<String> getThermalStateName() =>
+      getThermalState().then((value) => value.name);
 
-  Future<String> getFreeMemoryReachable() =>
-      getFreeMemory().then((value) => value > 0 ? value.toString() : "not reachable");
+  Future<String> getFreeMemoryReachable() => getFreeMemory()
+      .then((value) => value > 0 ? value.toString() : "not reachable");
 
-  Future<String> getBatteryLevelPercent() =>
-      getBatteryLevel().then((value) => value != null && value > 0 ? "${value.toInt()} %" : "not reachable");
+  Future<String> getBatteryLevelPercent() => getBatteryLevel().then((value) =>
+      value != null && value > 0 ? "${value.toInt()} %" : "not reachable");
 }
 
 extension on Future<EcoRange?> {
-  Future<String?> getScore() => then((value) => value?.score != null ? "${(value!.score * 100).toInt()}/100" : null);
+  Future<String?> getScore() => then((value) =>
+      value?.score != null ? "${(value!.score * 100).toInt()}/100" : null);
 
   Future<String?> getRange() => then((value) => value?.range.name);
 
-  Future<String?> isLowEndDevice() => then((value) => value?.isLowEndDevice.toString());
+  Future<String?> isLowEndDevice() =>
+      then((value) => value?.isLowEndDevice.toString());
 }
 
 class _ResultLine {
