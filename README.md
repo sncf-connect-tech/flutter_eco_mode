@@ -1,4 +1,4 @@
-[![pub package](https://img.shields.io/pub/v/flutter_google_wallet.svg)](https://pub.dev/packages/flutter_eco_mode)
+[![pub package](https://img.shields.io/pub/v/flutter_eco_mode.svg)](https://pub.dev/packages/flutter_eco_mode)
 [![Test](https://github.com/sncf-connect-tech/flutter_eco_mode/actions/workflows/test.yaml/badge.svg)](https://github.com/sncf-connect-tech/flutter_eco_mode/actions/workflows/test.yaml)
 [![codecov](https://codecov.io/gh/sncf-connect-tech/flutter_eco_mode/graph/badge.svg?token=6O1cg0mQ2P)](https://codecov.io/gh/sncf-connect-tech/flutter_eco_mode)
 
