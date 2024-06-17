@@ -22,18 +22,17 @@ public class FlutterEcoModePlugin: NSObject, FlutterPlugin, EcoModeApi {
     static let lowPowerModeEventChannelName = "sncf.connect.tech/battery.isLowPowerMode"
     static let batteryStateEventChannelName = "sncf.connect.tech/battery.state"
     static let batteryLevelEventChannelName = "sncf.connect.tech/battery.level"
-    fileprivate var eventSink: FlutterEventSink?
     
     static public func register(with registrar: FlutterPluginRegistrar) {
         let messenger: FlutterBinaryMessenger = registrar.messenger()
         let api: EcoModeApi & NSObjectProtocol = FlutterEcoModePlugin.init()
         EcoModeApiSetup.setUp(binaryMessenger: messenger, api: api)
         
-        FlutterEventChannel(name: lowPowerModeEventChannelName, binaryMessenger: messenger).setStreamHandler(FlutterEcoModePlugin())
+        FlutterEventChannel(name: lowPowerModeEventChannelName, binaryMessenger: messenger).setStreamHandler(PowerModeStreamHandler())
         
-        FlutterEventChannel(name: batteryStateEventChannelName, binaryMessenger: messenger).setStreamHandler(FlutterEcoModePlugin())
+        FlutterEventChannel(name: batteryStateEventChannelName, binaryMessenger: messenger).setStreamHandler(BatteryStateStreamHandler())
         
-        FlutterEventChannel(name: batteryLevelEventChannelName, binaryMessenger: messenger).setStreamHandler(FlutterEcoModePlugin())
+        FlutterEventChannel(name: batteryLevelEventChannelName, binaryMessenger: messenger).setStreamHandler(BatteryLevelStreamHandler())
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -61,6 +60,7 @@ public class FlutterEcoModePlugin: NSObject, FlutterPlugin, EcoModeApi {
     
     func isBatteryInLowPowerMode() throws -> Bool {
         enableBatteryMonitoring()
+        NSLog("battery low power mode: " + String(ProcessInfo.processInfo.isLowPowerModeEnabled))
         return ProcessInfo.processInfo.isLowPowerModeEnabled
     }
     
@@ -130,30 +130,6 @@ public class FlutterEcoModePlugin: NSObject, FlutterPlugin, EcoModeApi {
         }
     }
     
-    // Function that enable Battery monitoring if not already enabled
-    private func enableBatteryMonitoring() {
-        let device = UIDevice.current
-        if !device.isBatteryMonitoringEnabled {
-            device.isBatteryMonitoringEnabled = true
-        }
-    }
-
-    // BatteryState converter
-    private func convertBatteryState(state: UIDevice.BatteryState) -> BatteryState {
-        switch state {
-        case .charging:
-            return .charging
-        case .unplugged:
-            return .discharging
-        case .full:
-            return .full
-        case .unknown:
-            return .unknown
-        @unknown default:
-            return .unknown
-        }
-    }
-
     // ThermalState converter
     private func convertThermalState(state: ProcessInfo.ThermalState) -> ThermalState {
         switch state {
@@ -171,19 +147,19 @@ public class FlutterEcoModePlugin: NSObject, FlutterPlugin, EcoModeApi {
     }
 }
 
-
-extension FlutterEcoModePlugin: FlutterStreamHandler {
+public class PowerModeStreamHandler: NSObject, FlutterStreamHandler {
+    
+    fileprivate var eventSink: FlutterEventSink?
+    
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        enableBatteryMonitoring()
         self.eventSink = events
         NotificationCenter.default.addObserver(self, selector: #selector(lowPowerModeChanged), name: .NSProcessInfoPowerStateDidChange, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(batteryStateChanged(_:)), name: UIDevice.batteryStateDidChangeNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(batteryLevelChanged(_:)), name: UIDevice.batteryLevelDidChangeNotification, object: nil)
         return nil
     }
     
     public func onCancel(withArguments arguments: Any?) -> FlutterError? {
         NotificationCenter.default.removeObserver(self, name: .NSProcessInfoPowerStateDidChange, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIDevice.batteryStateDidChangeNotification, object: nil)
         eventSink = nil
         return nil
     }
@@ -193,13 +169,75 @@ extension FlutterEcoModePlugin: FlutterStreamHandler {
         self.eventSink?(ProcessInfo.processInfo.isLowPowerModeEnabled)
     }
     
+}
+
+public class BatteryStateStreamHandler: NSObject, FlutterStreamHandler {
+    
+    fileprivate var eventSink: FlutterEventSink?
+    
+    public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        enableBatteryMonitoring()
+        self.eventSink = events
+        NotificationCenter.default.addObserver(self, selector: #selector(batteryStateChanged(_:)), name: UIDevice.batteryStateDidChangeNotification, object: nil)
+        return nil
+    }
+    
+    public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        NotificationCenter.default.removeObserver(self, name: UIDevice.batteryStateDidChangeNotification, object: nil)
+        eventSink = nil
+        return nil
+    }
+    
     @objc func batteryStateChanged(_ notification: Notification) {
         let batteryState = convertBatteryState(state: UIDevice.current.batteryState)
         self.eventSink?(batteryState)
     }
     
+}
+
+public class BatteryLevelStreamHandler: NSObject, FlutterStreamHandler {
+    
+    fileprivate var eventSink: FlutterEventSink?
+    
+    public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        enableBatteryMonitoring()
+        self.eventSink = events
+        NotificationCenter.default.addObserver(self, selector: #selector(batteryLevelChanged(_:)), name: UIDevice.batteryLevelDidChangeNotification, object: nil)
+        return nil
+    }
+    
+    public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        NotificationCenter.default.removeObserver(self, name: UIDevice.batteryLevelDidChangeNotification, object: nil)
+        eventSink = nil
+        return nil
+    }
+    
     @objc func batteryLevelChanged(_ notification: Notification) {
         let batteryLevel = Double(UIDevice.current.batteryLevel)
         self.eventSink?(batteryLevel)
+    }
+    
+}
+
+
+private func convertBatteryState(state: UIDevice.BatteryState) -> BatteryState {
+    switch state {
+    case .charging:
+        return .charging
+    case .unplugged:
+        return .discharging
+    case .full:
+        return .full
+    case .unknown:
+        return .unknown
+    @unknown default:
+        return .unknown
+    }
+}
+
+private func enableBatteryMonitoring() {
+    let device = UIDevice.current
+    if !device.isBatteryMonitoringEnabled {
+        device.isBatteryMonitoringEnabled = true
     }
 }

@@ -73,11 +73,10 @@ class _ResultsState extends State<Results> {
             label: 'Is battery in eco mode',
             widget: _ResultFuture(plugin.isBatteryEcoMode)),
         _ResultLine(
-            label: 'Is battery in eco mode event stream',
-            widget: _ResultStream(
-              plugin.isBatteryEcoModeStream,
-              initialFuture: plugin.isBatteryEcoMode,
-            )),
+          label: 'Is battery in eco mode event stream',
+          widget: _ResultStream(plugin.isBatteryEcoModeStream,
+              initialFuture: plugin.isBatteryEcoMode),
+        ),
         _ResultLine(
             label: 'Eco range score', widget: _ResultFuture(ecoRange.getScore)),
         _ResultLine(
