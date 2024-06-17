@@ -13,9 +13,12 @@ const double minScoreLowEndDevice = 0.3;
 /// An implementation of [FlutterEcoModePlatform] that uses pigeon.
 class FlutterEcoMode extends FlutterEcoModePlatform {
   final EcoModeApi _api;
-  final StreamController<double> _batteryLevelStreamController = StreamController.broadcast();
-  final StreamController<String> _batteryStateStreamController = StreamController.broadcast();
-  final StreamController<bool> _batteryLowPowerModeStreamController = StreamController.broadcast();
+  final StreamController<double> _batteryLevelStreamController =
+      StreamController.broadcast();
+  final StreamController<String> _batteryStateStreamController =
+      StreamController.broadcast();
+  final StreamController<bool> _batteryLowPowerModeStreamController =
+      StreamController.broadcast();
 
   FlutterEcoMode({
     EcoModeApi? api,
@@ -23,17 +26,20 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
     EventChannel? batteryStatusEventChannel,
     EventChannel? batteryModeEventChannel,
   }) : _api = api ?? EcoModeApi() {
-    (batteryLevelEventChannel ?? const EventChannel('sncf.connect.tech/battery.level'))
+    (batteryLevelEventChannel ??
+            const EventChannel('sncf.connect.tech/battery.level'))
         .receiveBroadcastStream()
         .listen((event) {
       _batteryLevelStreamController.add(event);
     });
-    (batteryStatusEventChannel ?? const EventChannel('sncf.connect.tech/battery.state'))
+    (batteryStatusEventChannel ??
+            const EventChannel('sncf.connect.tech/battery.state'))
         .receiveBroadcastStream()
         .listen((event) {
       _batteryStateStreamController.add(event);
     });
-    (batteryModeEventChannel ?? const EventChannel('sncf.connect.tech/battery.isLowPowerMode'))
+    (batteryModeEventChannel ??
+            const EventChannel('sncf.connect.tech/battery.isLowPowerMode'))
         .receiveBroadcastStream()
         .listen((event) {
       _batteryLowPowerModeStreamController.add(event);
@@ -103,7 +109,10 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
         throw Exception('Error while getting eco score');
       }
       final range = _buildRange(value);
-      return EcoRange(score: value, range: range, isLowEndDevice: range == DeviceEcoRange.lowEnd);
+      return EcoRange(
+          score: value,
+          range: range,
+          isLowEndDevice: range == DeviceEcoRange.lowEnd);
     }).onError((error, stackTrace) {
       log(stackTrace.toString(), error: error);
       return null;
@@ -143,7 +152,8 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
       return Future.wait([
         Future<bool?>.value((await getBatteryLevel())?.isNotEnough),
         Future<bool?>.value((await getBatteryState()).isDischarging),
-      ]).then((List<bool?> value) => value.every((bool? element) => element ?? false));
+      ]).then((List<bool?> value) =>
+          value.every((bool? element) => element ?? false));
     } catch (error, stackTrace) {
       log(stackTrace.toString(), error: error);
       return null;
@@ -169,20 +179,24 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   }
 
   @override
-  Stream<bool> get lowPowerModeEventStream => _batteryLowPowerModeStreamController.stream;
+  Stream<bool> get lowPowerModeEventStream =>
+      _batteryLowPowerModeStreamController.stream;
 
   @override
-  Stream<double> get batteryLevelEventStream => _batteryLevelStreamController.stream;
+  Stream<double> get batteryLevelEventStream =>
+      _batteryLevelStreamController.stream;
 
   @override
   Stream<BatteryState> get batteryStateEventStream =>
       _batteryStateStreamController.stream.map((event) => BatteryState.values
-          .firstWhere((e) => e.name == event.toString().toLowerCase(), orElse: () => BatteryState.unknown));
+          .firstWhere((e) => e.name == event.toString().toLowerCase(),
+              orElse: () => BatteryState.unknown));
 
   @override
   Stream<bool?> get isBatteryEcoModeStream => CombineLatestStream.list([
         _isNotEnoughBatteryStream(),
-        lowPowerModeEventStream.withInitialValue(isBatteryInLowPowerMode().then((value) => value ?? false)),
+        lowPowerModeEventStream.withInitialValue(
+            isBatteryInLowPowerMode().then((value) => value ?? false)),
       ]).map((event) => event.any((element) => element)).asBroadcastStream();
 
   Stream<bool> _isNotEnoughBatteryStream() => CombineLatestStream.list([
@@ -200,7 +214,8 @@ extension on BatteryState {
 }
 
 extension on ThermalState {
-  bool get isSeriousAtLeast => this == ThermalState.serious || this == ThermalState.critical;
+  bool get isSeriousAtLeast =>
+      this == ThermalState.serious || this == ThermalState.critical;
 }
 
 extension _StreamExtensions<T> on Stream<T> {

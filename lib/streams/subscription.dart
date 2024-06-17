@@ -4,7 +4,8 @@ import 'package:flutter_eco_mode/streams/future.dart';
 
 /// @internal
 /// Extensions for [Iterable] of [StreamSubscription]s.
-extension StreamSubscriptionsIterableExtensions on Iterable<StreamSubscription<void>> {
+extension StreamSubscriptionsIterableExtensions
+    on Iterable<StreamSubscription<void>> {
   /// @internal
   /// Pause all subscriptions.
   void pauseAll([Future<void>? resumeSignal]) {
@@ -24,8 +25,10 @@ extension StreamSubscriptionsIterableExtensions on Iterable<StreamSubscription<v
 
 /// @internal
 /// Extensions for [Iterable] of [StreamSubscription]s.
-extension StreamSubscriptionsIterableExtension on Iterable<StreamSubscription<void>> {
+extension StreamSubscriptionsIterableExtension
+    on Iterable<StreamSubscription<void>> {
   /// @internal
   /// Cancel all subscriptions.
-  Future<void>? cancelAll() => waitFuturesList([for (final s in this) s.cancel()]);
+  Future<void>? cancelAll() =>
+      waitFuturesList([for (final s in this) s.cancel()]);
 }

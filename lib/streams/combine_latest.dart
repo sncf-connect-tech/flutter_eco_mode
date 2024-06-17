@@ -220,7 +220,16 @@ class CombineLatestStream<T, R> extends StreamView<R> {
     R Function(A a, B b, C c, D d, E e, F f, G g, H h) combiner,
   ) =>
       CombineLatestStream<dynamic, R>(
-        [streamA, streamB, streamC, streamD, streamE, streamF, streamG, streamH],
+        [
+          streamA,
+          streamB,
+          streamC,
+          streamD,
+          streamE,
+          streamF,
+          streamG,
+          streamH
+        ],
         (List<dynamic> values) {
           return combiner(
             values[0] as A,
@@ -251,7 +260,17 @@ class CombineLatestStream<T, R> extends StreamView<R> {
     R Function(A a, B b, C c, D d, E e, F f, G g, H h, I i) combiner,
   ) =>
       CombineLatestStream<dynamic, R>(
-        [streamA, streamB, streamC, streamD, streamE, streamF, streamG, streamH, streamI],
+        [
+          streamA,
+          streamB,
+          streamC,
+          streamD,
+          streamE,
+          streamF,
+          streamG,
+          streamH,
+          streamI
+        ],
         (List<dynamic> values) {
           return combiner(
             values[0] as A,
