@@ -30,8 +30,14 @@ abstract class FlutterEcoModePlatform extends PlatformInterface {
   /// Return the current battery level.
   Future<double?> getBatteryLevel();
 
+  /// Return a stream of battery level.
+  Stream<double> get batteryLevelEventStream;
+
   /// Return the current battery state.
   Future<BatteryState> getBatteryState();
+
+  /// Return a stream of battery state.
+  Stream<BatteryState> get batteryStateEventStream;
 
   /// Return the current battery save mode.
   Future<bool?> isBatteryInLowPowerMode();
@@ -59,6 +65,9 @@ abstract class FlutterEcoModePlatform extends PlatformInterface {
 
   /// Return if the battery is in eco mode.
   Future<bool?> isBatteryEcoMode();
+
+  /// Return a stream is battery eco mode.
+  Stream<bool?> get isBatteryEcoModeStream;
 
   /// Return the eco range.
   Future<EcoRange?> getEcoRange();

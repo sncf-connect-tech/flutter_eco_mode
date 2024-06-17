@@ -19,8 +19,9 @@ public class FlutterEcoModePlugin: NSObject, FlutterPlugin, EcoModeApi {
         return Double(score / nbrParams)
     }
     
-    
     static let lowPowerModeEventChannelName = "sncf.connect.tech/battery.isLowPowerMode"
+    static let batteryStateEventChannelName = "sncf.connect.tech/battery.state"
+    static let batteryLevelEventChannelName = "sncf.connect.tech/battery.level"
     fileprivate var eventSink: FlutterEventSink?
     
     static public func register(with registrar: FlutterPluginRegistrar) {
@@ -29,6 +30,10 @@ public class FlutterEcoModePlugin: NSObject, FlutterPlugin, EcoModeApi {
         EcoModeApiSetup.setUp(binaryMessenger: messenger, api: api)
         
         FlutterEventChannel(name: lowPowerModeEventChannelName, binaryMessenger: messenger).setStreamHandler(FlutterEcoModePlugin())
+        
+        FlutterEventChannel(name: batteryStateEventChannelName, binaryMessenger: messenger).setStreamHandler(FlutterEcoModePlugin())
+        
+        FlutterEventChannel(name: batteryLevelEventChannelName, binaryMessenger: messenger).setStreamHandler(FlutterEcoModePlugin())
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -169,10 +174,10 @@ public class FlutterEcoModePlugin: NSObject, FlutterPlugin, EcoModeApi {
 
 extension FlutterEcoModePlugin: FlutterStreamHandler {
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-        print("on listen...")
         self.eventSink = events
         NotificationCenter.default.addObserver(self, selector: #selector(lowPowerModeChanged), name: .NSProcessInfoPowerStateDidChange, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(batteryStateChanged(_:)), name: UIDevice.batteryStateDidChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(batteryLevelChanged(_:)), name: UIDevice.batteryLevelDidChangeNotification, object: nil)
         return nil
     }
     
@@ -185,13 +190,16 @@ extension FlutterEcoModePlugin: FlutterStreamHandler {
     
     @objc
     func lowPowerModeChanged() {
-        print("low power mode has changed")
         self.eventSink?(ProcessInfo.processInfo.isLowPowerModeEnabled)
     }
     
     @objc func batteryStateChanged(_ notification: Notification) {
-        print("battery state has changed")
         let batteryState = convertBatteryState(state: UIDevice.current.batteryState)
         self.eventSink?(batteryState)
+    }
+    
+    @objc func batteryLevelChanged(_ notification: Notification) {
+        let batteryLevel = Double(UIDevice.current.batteryLevel)
+        self.eventSink?(batteryLevel)
     }
 }

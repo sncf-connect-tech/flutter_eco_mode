@@ -22,21 +22,22 @@ also to offer a less energy-consuming app.
 
 ## Features
 
-| Feature                                                                                      |                 Android                 |                   iOS                   |                Runtime                | Event |
-|:---------------------------------------------------------------------------------------------|:---------------------------------------:|:---------------------------------------:|:-------------------------------------:|:-----:|
-| getPlatformInfo()                                                                            |                   Yes                   |                   Yes                   |                                       |       |
-| getBatteryLevel()                                                                            |                   Yes                   |                   Yes                   |                   X                   |       |
-| getBatteryState()                                                                            |                   No                    |                   Yes                   |                   X                   |       |
-| isBatteryInLowPowerMode()                                                                    |                   Yes                   |                   Yes                   |                   X                   |       |
-| lowPowerModeEventStream()                                                                    |                   Yes                   |                   Yes                   |                   X                   |   X   |
-| getThermalState()                                                                            |                   Yes                   |                   Yes                   |                   X                   |       |
-| getProcessorCount()                                                                          |                   Yes                   |                   Yes                   |                                       |       |
-| getTotalMemory()                                                                             |                   Yes                   |                   Yes                   |                                       |       |
-| getFreeMemory()                                                                              |                   Yes                   |                   Yes                   |                   X                   |       |
-| getTotalStorage()                                                                            |                   Yes                   |                   Yes                   |                                       |       |
-| getFreeStorage()                                                                             |                   Yes                   |                   Yes                   |                   X                   |       |
-| <span style="color: #3CB371">**isBatteryEcoMode()**</span>                                   | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> |       |
-| <span style="color: #3CB371">**getEcoRange**()</span>                                        | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> |       |
+| Feature                                                                                            |                 Android                 |                   iOS                   |                Runtime                | Event |
+|:---------------------------------------------------------------------------------------------------|:---------------------------------------:|:---------------------------------------:|:-------------------------------------:|:-----:|
+| getPlatformInfo()                                                                                  |                   Yes                   |                   Yes                   |                                       |       |
+| getBatteryLevel()                                                                                  |                   Yes                   |                   Yes                   |                   X                   |       |
+| getBatteryState()                                                                                  |                   No                    |                   Yes                   |                   X                   |       |
+| isBatteryInLowPowerMode()                                                                          |                   Yes                   |                   Yes                   |                   X                   |       |
+| lowPowerModeEventStream()                                                                          |                   Yes                   |                   Yes                   |                   X                   |   X   |
+| getThermalState()                                                                                  |                   Yes                   |                   Yes                   |                   X                   |       |
+| getProcessorCount()                                                                                |                   Yes                   |                   Yes                   |                                       |       |
+| getTotalMemory()                                                                                   |                   Yes                   |                   Yes                   |                                       |       |
+| getFreeMemory()                                                                                    |                   Yes                   |                   Yes                   |                   X                   |       |
+| getTotalStorage()                                                                                  |                   Yes                   |                   Yes                   |                                       |       |
+| getFreeStorage()                                                                                   |                   Yes                   |                   Yes                   |                   X                   |       |
+| isBatteryEcoModeStream                                                                             |                   Yes                   |                   No                    |                                       |   X   |
+| <span style="color: #3CB371">**isBatteryEcoMode()**</span>                                         | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> |       |
+| <span style="color: #3CB371">**getEcoRange**()</span>                                              | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> |       |
 
 
 ## Eco Mode

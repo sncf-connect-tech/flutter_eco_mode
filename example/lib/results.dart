@@ -31,17 +31,25 @@ class _ResultsState extends State<Results> {
             label: 'Battery level',
             widget: _ResultFuture(plugin.getBatteryLevelPercent)),
         _ResultLine(
+          label: 'Battery level event stream',
+          widget: _ResultStream(plugin.getBatteryLevelPercentStream,
+              initialFuture: plugin.getBatteryLevelPercent),
+        ),
+        _ResultLine(
             label: 'Battery state',
             widget: _ResultFuture(plugin.getBatteryStateName)),
+        _ResultLine(
+          label: 'Battery state event stream',
+          widget: _ResultStream(plugin.getBatteryStateStreamName,
+              initialFuture: plugin.getBatteryStateName),
+        ),
         _ResultLine(
             label: 'Is battery in low power mode',
             widget: _ResultFuture(plugin.isBatteryEcoMode)),
         _ResultLine(
           label: 'Low power mode event stream',
-          widget: _ResultStream(
-            plugin.lowPowerModeEventStream,
-            initialFuture: plugin.isBatteryEcoMode,
-          ),
+          widget: _ResultStream(plugin.lowPowerModeEventStream,
+              initialFuture: plugin.isBatteryInLowPowerMode),
         ),
         _ResultLine(
             label: 'Thermal state',
@@ -65,6 +73,12 @@ class _ResultsState extends State<Results> {
             label: 'Is battery in eco mode',
             widget: _ResultFuture(plugin.isBatteryEcoMode)),
         _ResultLine(
+            label: 'Is battery in eco mode event stream',
+            widget: _ResultStream(
+              plugin.isBatteryEcoModeStream,
+              initialFuture: plugin.isBatteryEcoMode,
+            )),
+        _ResultLine(
             label: 'Eco range score', widget: _ResultFuture(ecoRange.getScore)),
         _ResultLine(
             label: 'Device eco range',
@@ -81,6 +95,9 @@ extension on FlutterEcoMode {
   Future<String> getBatteryStateName() =>
       getBatteryState().then((value) => value.name);
 
+  Stream<String> get getBatteryStateStreamName =>
+      batteryStateEventStream.map((value) => value.name);
+
   Future<String> getThermalStateName() =>
       getThermalState().then((value) => value.name);
 
@@ -89,6 +106,9 @@ extension on FlutterEcoMode {
 
   Future<String> getBatteryLevelPercent() => getBatteryLevel().then((value) =>
       value != null && value > 0 ? "${value.toInt()} %" : "not reachable");
+
+  Stream<String> get getBatteryLevelPercentStream => batteryLevelEventStream
+      .map((value) => value > 0 ? "${value.toInt()} %" : "not reachable");
 }
 
 extension on Future<EcoRange?> {
@@ -126,7 +146,10 @@ class _ResultStreamState<T> extends State<_ResultStream<T>> {
 
   @override
   void initState() {
-    future = widget.initialFuture().timeout(const Duration(seconds: 3));
+    future = widget
+        .initialFuture()
+        .timeout(const Duration(seconds: 3))
+        .then((value) => value);
     super.initState();
   }
 
@@ -175,6 +198,7 @@ class _ResultFutureState<T> extends State<_ResultFuture<T>> {
 
 class _ResultAsync<T> extends StatelessWidget {
   final AsyncSnapshot<T> snapshot;
+
   final Widget Function()? widgetBuilder;
 
   const _ResultAsync(this.snapshot, {this.widgetBuilder});
