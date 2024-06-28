@@ -166,7 +166,9 @@ public class PowerModeStreamHandler: NSObject, FlutterStreamHandler {
     
     @objc
     func lowPowerModeChanged() {
-        self.eventSink?(ProcessInfo.processInfo.isLowPowerModeEnabled)
+        DispatchQueue.main.async {
+            self.eventSink?(ProcessInfo.processInfo.isLowPowerModeEnabled)
+        }
     }
     
 }
@@ -190,7 +192,9 @@ public class BatteryStateStreamHandler: NSObject, FlutterStreamHandler {
     
     @objc func batteryStateChanged(_ notification: Notification) {
         let batteryState = convertBatteryState(state: UIDevice.current.batteryState)
-        self.eventSink?(batteryState)
+        DispatchQueue.main.async {
+            self.eventSink?(batteryState)
+        }
     }
     
 }
@@ -215,6 +219,9 @@ public class BatteryLevelStreamHandler: NSObject, FlutterStreamHandler {
     @objc func batteryLevelChanged(_ notification: Notification) {
         let batteryLevel = Double(UIDevice.current.batteryLevel)
         self.eventSink?(batteryLevel)
+        DispatchQueue.main.async {
+            self.eventSink?(batteryLevel)
+        }
     }
     
 }
