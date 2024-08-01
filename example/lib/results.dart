@@ -1,223 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_eco_mode/flutter_eco_mode.dart';
-import 'package:flutter_eco_mode/flutter_eco_mode_platform_interface.dart';
 
-class Results extends StatefulWidget {
-  const Results({super.key});
-
-  @override
-  State<Results> createState() => _ResultsState();
-}
-
-class _ResultsState extends State<Results> {
-  late FlutterEcoMode plugin;
-  late Future<EcoRange?> ecoRange;
-
-  @override
-  void initState() {
-    super.initState();
-    plugin = FlutterEcoMode();
-    ecoRange = plugin.getEcoRange();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _ResultsView(
-      [
-        _ResultLine(
-            label: 'Platform info',
-            widget: _ResultFuture(plugin.getPlatformInfo)),
-        _ResultLine(
-            label: 'Battery level',
-            widget: _ResultFuture(plugin.getBatteryLevelPercent)),
-        _ResultLine(
-          label: 'Battery level event stream',
-          widget: _ResultStream(plugin.getBatteryLevelPercentStream,
-              initialFuture: plugin.getBatteryLevelPercent),
-        ),
-        _ResultLine(
-            label: 'Battery state',
-            widget: _ResultFuture(plugin.getBatteryStateName)),
-        _ResultLine(
-          label: 'Battery state event stream',
-          widget: _ResultStream(plugin.getBatteryStateStreamName,
-              initialFuture: plugin.getBatteryStateName),
-        ),
-        _ResultLine(
-            label: 'Is battery in low power mode',
-            widget: _ResultFuture(plugin.isBatteryEcoMode)),
-        _ResultLine(
-          label: 'Low power mode event stream',
-          widget: _ResultStream(plugin.lowPowerModeEventStream,
-              initialFuture: plugin.isBatteryInLowPowerMode),
-        ),
-        _ResultLine(
-            label: 'Thermal state',
-            widget: _ResultFuture(plugin.getThermalStateName)),
-        _ResultLine(
-            label: 'Processor count',
-            widget: _ResultFuture(plugin.getProcessorCount)),
-        _ResultLine(
-            label: 'Total memory',
-            widget: _ResultFuture(plugin.getTotalMemory)),
-        _ResultLine(
-            label: 'Free memory',
-            widget: _ResultFuture(plugin.getFreeMemoryReachable)),
-        _ResultLine(
-            label: 'Total storage',
-            widget: _ResultFuture(plugin.getTotalStorage)),
-        _ResultLine(
-            label: 'Free storage',
-            widget: _ResultFuture(plugin.getFreeStorage)),
-        _ResultLine(
-            label: 'Is battery in eco mode',
-            widget: _ResultFuture(plugin.isBatteryEcoMode)),
-        _ResultLine(
-          label: 'Is battery in eco mode event stream',
-          widget: _ResultStream(plugin.isBatteryEcoModeStream,
-              initialFuture: plugin.isBatteryEcoMode),
-        ),
-        _ResultLine(
-            label: 'Eco range score', widget: _ResultFuture(ecoRange.getScore)),
-        _ResultLine(
-            label: 'Device eco range',
-            widget: _ResultFuture(ecoRange.getRange)),
-        _ResultLine(
-            label: 'Is low end device',
-            widget: _ResultFuture(ecoRange.isLowEndDevice)),
-      ],
-    );
-  }
-}
-
-extension on FlutterEcoMode {
-  Future<String> getBatteryStateName() =>
-      getBatteryState().then((value) => value.name);
-
-  Stream<String> get getBatteryStateStreamName =>
-      batteryStateEventStream.map((value) => value.name);
-
-  Future<String> getThermalStateName() =>
-      getThermalState().then((value) => value.name);
-
-  Future<String> getFreeMemoryReachable() => getFreeMemory()
-      .then((value) => value > 0 ? value.toString() : "not reachable");
-
-  Future<String> getBatteryLevelPercent() => getBatteryLevel().then((value) =>
-      value != null && value > 0 ? "${value.toInt()} %" : "not reachable");
-
-  Stream<String> get getBatteryLevelPercentStream => batteryLevelEventStream
-      .map((value) => value > 0 ? "${value.toInt()} %" : "not reachable");
-}
-
-extension on Future<EcoRange?> {
-  Future<String?> getScore() => then((value) =>
-      value?.score != null ? "${(value!.score * 100).toInt()}/100" : null);
-
-  Future<String?> getRange() => then((value) => value?.range.name);
-
-  Future<String?> isLowEndDevice() =>
-      then((value) => value?.isLowEndDevice.toString());
-}
-
-class _ResultLine {
+class ResultLine {
   final String label;
-  final Widget widget;
+  final Color? labelColor;
+  final Color? valueColor;
+  final Future Function() future;
+  final Stream Function()? stream;
 
-  const _ResultLine({
+  const ResultLine({
     required this.label,
-    required this.widget,
+    required this.future,
+    this.stream,
+    this.labelColor = Colors.black,
+    this.valueColor = Colors.black,
   });
 }
 
-class _ResultStream<T> extends StatefulWidget {
-  final Stream<T> resultStream;
-  final Future<T> Function() initialFuture;
+class ResultsView extends StatelessWidget {
+  final List<ResultLine> resultLines;
 
-  const _ResultStream(this.resultStream, {required this.initialFuture});
-
-  @override
-  State<_ResultStream<T>> createState() => _ResultStreamState<T>();
-}
-
-class _ResultStreamState<T> extends State<_ResultStream<T>> {
-  late Future<T> future;
-
-  @override
-  void initState() {
-    future = widget
-        .initialFuture()
-        .timeout(const Duration(seconds: 3))
-        .then((value) => value);
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: future,
-      builder: (_, snapshot) => _ResultAsync(
-        snapshot,
-        widgetBuilder: () => StreamBuilder(
-          stream: widget.resultStream,
-          initialData: snapshot.data,
-          builder: (_, snapshot) => _ResultAsync(snapshot),
-        ),
-      ),
-    );
-  }
-}
-
-class _ResultFuture<T> extends StatefulWidget {
-  final Future<T> Function() futureFunction;
-
-  const _ResultFuture(this.futureFunction);
-
-  @override
-  State<_ResultFuture<T>> createState() => _ResultFutureState();
-}
-
-class _ResultFutureState<T> extends State<_ResultFuture<T>> {
-  late Future<T> future;
-
-  @override
-  void initState() {
-    future = widget.futureFunction().timeout(const Duration(seconds: 3));
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: future,
-      builder: (_, snapshot) => _ResultAsync(snapshot),
-    );
-  }
-}
-
-class _ResultAsync<T> extends StatelessWidget {
-  final AsyncSnapshot<T> snapshot;
-
-  final Widget Function()? widgetBuilder;
-
-  const _ResultAsync(this.snapshot, {this.widgetBuilder});
-
-  @override
-  Widget build(BuildContext context) {
-    if (snapshot.hasData && snapshot.data != null) {
-      return widgetBuilder?.call() ?? Text('${snapshot.data}');
-    } else if (snapshot.hasError) {
-      return const Text('not reachable');
-    } else {
-      return const CircularProgressIndicator();
-    }
-  }
-}
-
-class _ResultsView extends StatelessWidget {
-  final List<_ResultLine> resultLines;
-
-  const _ResultsView(this.resultLines);
+  const ResultsView(this.resultLines, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -227,8 +29,15 @@ class _ResultsView extends StatelessWidget {
       children: resultLines
           .map(
             (line) => [
-              _ResultTitle(line.label),
-              _Result(line.widget),
+              _ResultTitle(
+                line.label,
+                labelColor: line.labelColor,
+              ),
+              _Result(
+                future: line.future,
+                stream: line.stream,
+                valueColor: line.valueColor,
+              ),
             ],
           )
           .expand((e) => e)
@@ -237,35 +46,105 @@ class _ResultsView extends StatelessWidget {
   }
 }
 
-class _Result extends StatelessWidget {
-  final Widget widget;
-
-  const _Result(this.widget);
-
-  @override
-  Widget build(BuildContext context) {
-    return _ResultDecoration(
-      widget,
-      alignment: Alignment.center,
-    );
-  }
-}
-
 class _ResultTitle extends StatelessWidget {
   final String label;
+  final Color? labelColor;
 
-  const _ResultTitle(this.label);
+  const _ResultTitle(
+    this.label, {
+    this.labelColor = Colors.transparent,
+  });
 
   @override
   Widget build(BuildContext context) {
     return _ResultDecoration(
       Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.bold,
+          color: labelColor,
         ),
       ),
     );
+  }
+}
+
+class _Result extends StatefulWidget {
+  final Future Function() future;
+  final Stream Function()? stream;
+  final Color? valueColor;
+
+  const _Result({
+    required this.future,
+    this.stream,
+    this.valueColor = Colors.transparent,
+  });
+
+  @override
+  State<_Result> createState() => _ResultState();
+}
+
+class _ResultState extends State<_Result> {
+  late Future _future;
+  late Stream _stream;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = widget.future.call();
+    if (widget.stream != null) {
+      _stream = widget.stream!.call().initWith(_future);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _ResultDecoration(
+      widget.stream != null
+          ? StreamBuilder(
+              stream: _stream,
+              builder: (_, snapshot) => _ResultAsync(
+                snapshot,
+                color: widget.valueColor,
+              ),
+            )
+          : FutureBuilder(
+              future: _future,
+              builder: (_, snapshot) => _ResultAsync(
+                snapshot,
+                color: widget.valueColor,
+              ),
+            ),
+      alignment: Alignment.center,
+    );
+  }
+}
+
+class _ResultAsync<T> extends StatelessWidget {
+  final AsyncSnapshot<T> snapshot;
+  final Color? color;
+
+  const _ResultAsync(
+    this.snapshot, {
+    super.key,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (snapshot.hasData && snapshot.data != null) {
+      return Text(
+        '${snapshot.data}',
+        style: TextStyle(color: color),
+      );
+    } else if (snapshot.hasError) {
+      return Text(
+        'not reachable',
+        style: TextStyle(color: color),
+      );
+    } else {
+      return const CircularProgressIndicator();
+    }
   }
 }
 
@@ -290,5 +169,12 @@ class _ResultDecoration extends StatelessWidget {
         child: widget,
       ),
     );
+  }
+}
+
+extension StreamExtension<T> on Stream<T> {
+  Stream<T> initWith(Future<T> value) async* {
+    yield await value;
+    yield* this;
   }
 }

@@ -57,7 +57,7 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   }
 
   @override
-  Future<bool?> isBatteryInLowPowerMode() async {
+  Future<bool> isBatteryInLowPowerMode() async {
     return await _api.isBatteryInLowPowerMode();
   }
 
