@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_eco_mode/flutter_eco_mode.dart';
 
 class ResultLine {
   final String label;
@@ -93,7 +94,7 @@ class _ResultState extends State<_Result> {
     super.initState();
     _future = widget.future.call();
     if (widget.stream != null) {
-      _stream = widget.stream!.call().initWith(_future);
+      _stream = widget.stream!.call().withInitialValue(_future);
     }
   }
 
@@ -169,12 +170,5 @@ class _ResultDecoration extends StatelessWidget {
         child: widget,
       ),
     );
-  }
-}
-
-extension StreamExtension<T> on Stream<T> {
-  Stream<T> initWith(Future<T> value) async* {
-    yield await value;
-    yield* this;
   }
 }

@@ -4,10 +4,13 @@
 
 # flutter_eco_mode
 
-A Flutter plugin to help implementing custom eco-friendly mode in your mobile app. This plugin will tell you if a device
-is a low-end device or not according to our recommendations. 
-It will also give you brut data to allow you to implement
-your own rules for your app.
+A Flutter plugin to help implementing custom eco-friendly mode in your mobile app.
+
+According to our recommendations, the plugin determine if a device is:
+* a low-end device
+* in a battery eco mode
+
+**It will also give you your own rules for your app.**
 
 This plugin is still in reflexion and development. And will only be available for Android and iOS at the moment.
 
@@ -22,37 +25,23 @@ also to offer a less energy-consuming app.
 
 ## Features
 
-| Feature                                                                                            |                 Android                 |                   iOS                   |                Runtime                | Event |
-|:---------------------------------------------------------------------------------------------------|:---------------------------------------:|:---------------------------------------:|:-------------------------------------:|:-----:|
-| getPlatformInfo()                                                                                  |                   Yes                   |                   Yes                   |                                       |       |
-| getBatteryLevel()                                                                                  |                   Yes                   |                   Yes                   |                   X                   |       |
-| getBatteryState()                                                                                  |                   No                    |                   Yes                   |                   X                   |       |
-| isBatteryInLowPowerMode()                                                                          |                   Yes                   |                   Yes                   |                   X                   |       |
-| lowPowerModeEventStream()                                                                          |                   Yes                   |                   Yes                   |                   X                   |   X   |
-| getThermalState()                                                                                  |                   Yes                   |                   Yes                   |                   X                   |       |
-| getProcessorCount()                                                                                |                   Yes                   |                   Yes                   |                                       |       |
-| getTotalMemory()                                                                                   |                   Yes                   |                   Yes                   |                                       |       |
-| getFreeMemory()                                                                                    |                   Yes                   |                   Yes                   |                   X                   |       |
-| getTotalStorage()                                                                                  |                   Yes                   |                   Yes                   |                                       |       |
-| getFreeStorage()                                                                                   |                   Yes                   |                   Yes                   |                   X                   |       |
-| isBatteryEcoModeStream                                                                             |                   Yes                   |                   No                    |                                       |   X   |
-| <span style="color: #3CB371">**isBatteryEcoMode()**</span>                                         | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> |       |
-| <span style="color: #3CB371">**getEcoRange**()</span>                                              | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> |       |
-
+| Feature                                                  |                 Android                 |                   iOS                   |                Runtime                |                 Event                 |
+|:---------------------------------------------------------|:---------------------------------------:|:---------------------------------------:|:-------------------------------------:|:-------------------------------------:|
+| Platform Info                                            |                   Yes                   |                   Yes                   |                   X                   |                                       |
+| Processor Count                                          |                   Yes                   |                   Yes                   |                   X                   |                                       |
+| Total Memory                                             |                   Yes                   |                   Yes                   |                   X                   |                                       |
+| Free Memory                                              |                   Yes                   |                   Yes                   |                   X                   |                                       |
+| Total Storage                                            |                   Yes                   |                   Yes                   |                   X                   |                                       |
+| Free Storage                                             |                   Yes                   |                   Yes                   |                   X                   |                                       |
+| <span style="color: #3CB371">**Eco Range**</span>        | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> | <span style="color: #3CB371">X</span> |
+| Battery Thermal State                                    |                   Yes                   |                   Yes                   |                   X                   |                                       |
+| Battery State                                            |                   Yes                   |                   Yes                   |                   X                   |                   X                   |
+| Battery Level                                            |                   Yes                   |                   Yes                   |                   X                   |                   X                   |
+| Battery In Low Power Mode                                |                   Yes                   |                   Yes                   |                   X                   |                   X                   |
+| <span style="color: #3CB371">**Battery Eco Mode**</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> | <span style="color: #3CB371">X</span> |
 
 ## Eco Mode
-### Battery Eco Mode
 
-This feature combines different battery information to determine if the device is in **_eco-mode_** or not. 
-It will return a boolean.
-
-```
-Future.wait([
-      _isNotEnoughBattery(),
-      _isBatteryLowPowerMode(),
-      _isSeriousAtLeastBatteryState(),
-    ])
-``` 
 ### Eco Range
 This feature gives the possibility to calculate a score for the device.
 The score does NOT represent an ecological performance. 
@@ -75,10 +64,27 @@ That's why we give you the possibility to calculate your own score by using othe
 If you have more than three eco ranges in your custom eco-mode, 
 feel free to give the best user eco experience to your final users :)
 
+### Battery Eco Mode
+
+This feature combines different battery information to determine if the device is in **_eco-mode_** or not.
+It will return a boolean.
+
+```
+@override
+  Stream<bool?> get isBatteryEcoModeStream => CombineLatestStream.list([
+        _isNotEnoughBatteryStream(),
+        lowPowerModeEventStream.withInitialValue(isBatteryInLowPowerMode()),
+      ]).map((event) => event.any((element) => element)).asBroadcastStream();
+
+  Stream<bool> _isNotEnoughBatteryStream() => CombineLatestStream.list([
+        batteryLevelEventStream.map((event) => event.isNotEnough),
+        batteryStateEventStream.map((event) => event.isDischarging),
+      ]).map((event) => event.every((element) => element)).asBroadcastStream();
+``` 
+
 ## Example
 
 See the `example` directory for a complete sample app using flutter_eco_mode.
-
 
 ## Contribution
 

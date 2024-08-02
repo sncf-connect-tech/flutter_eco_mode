@@ -195,8 +195,7 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   @override
   Stream<bool?> get isBatteryEcoModeStream => CombineLatestStream.list([
         _isNotEnoughBatteryStream(),
-        lowPowerModeEventStream.withInitialValue(
-            isBatteryInLowPowerMode().then((value) => value ?? false)),
+        lowPowerModeEventStream.withInitialValue(isBatteryInLowPowerMode()),
       ]).map((event) => event.any((element) => element)).asBroadcastStream();
 
   Stream<bool> _isNotEnoughBatteryStream() => CombineLatestStream.list([
@@ -218,7 +217,7 @@ extension on ThermalState {
       this == ThermalState.serious || this == ThermalState.critical;
 }
 
-extension _StreamExtensions<T> on Stream<T> {
+extension StreamExtensions<T> on Stream<T> {
   Stream<T> withInitialValue(Future<T> value) async* {
     yield await value;
     yield* this;
