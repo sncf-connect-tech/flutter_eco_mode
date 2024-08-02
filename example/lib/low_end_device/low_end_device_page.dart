@@ -72,5 +72,3 @@ class _LowEndDevicePageState extends State<LowEndDevicePage> {
     );
   }
 }
-
-

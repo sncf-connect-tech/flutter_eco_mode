@@ -15,7 +15,7 @@ extension FlutterEcoModeExtension on FlutterEcoMode {
       .then((value) => value > 0 ? value.toString() : "not reachable");
 
   Future<String> getBatteryLevelPercent() => getBatteryLevel().then((value) =>
-  value != null && value > 0 ? "${value.toInt()} %" : "not reachable");
+      value != null && value > 0 ? "${value.toInt()} %" : "not reachable");
 
   Stream<String> getBatteryLevelPercentStream() => batteryLevelEventStream
       .map((value) => value > 0 ? "${value.toInt()} %" : "not reachable");
@@ -23,7 +23,7 @@ extension FlutterEcoModeExtension on FlutterEcoMode {
 
 extension FutureEcoRangeExtension on Future<EcoRange?> {
   Future<String?> getScore() => then((value) =>
-  value?.score != null ? "${(value!.score * 100).toInt()}/100" : null);
+      value?.score != null ? "${(value!.score * 100).toInt()}/100" : null);
 
   Future<String?> getRange() => then((value) => value?.range.name);
 
