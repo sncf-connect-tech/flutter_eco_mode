@@ -70,15 +70,15 @@ abstract class FlutterEcoModePlatform extends PlatformInterface {
   Stream<bool?> get isBatteryEcoModeStream;
 
   /// Return the eco range.
-  Future<EcoRange?> getEcoRange();
+  Future<DeviceRange?> getDeviceRange();
 }
 
-class EcoRange {
+class DeviceRange {
   double score;
   DeviceEcoRange range;
   bool isLowEndDevice;
 
-  EcoRange({
+  DeviceRange({
     required this.score,
     required this.range,
     this.isLowEndDevice = false,

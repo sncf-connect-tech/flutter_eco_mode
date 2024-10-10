@@ -33,7 +33,7 @@ also to offer a less energy-consuming app.
 | Free Memory                                              |                   Yes                   |                   Yes                   |                   X                   |                                       |
 | Total Storage                                            |                   Yes                   |                   Yes                   |                   X                   |                                       |
 | Free Storage                                             |                   Yes                   |                   Yes                   |                   X                   |                                       |
-| <span style="color: #3CB371">**Eco Range**</span>        | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> | <span style="color: #3CB371">X</span> |
+| <span style="color: #3CB371">**Device Range**</span>     | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> | <span style="color: #3CB371">X</span> |
 | Battery Thermal State                                    |                   Yes                   |                   Yes                   |                   X                   |                                       |
 | Battery State                                            |                   Yes                   |                   Yes                   |                   X                   |                   X                   |
 | Battery Level                                            |                   Yes                   |                   Yes                   |                   X                   |                   X                   |
@@ -42,7 +42,7 @@ also to offer a less energy-consuming app.
 
 ## Eco Mode
 
-### Eco Range
+### Device Range
 This feature gives the possibility to calculate a score for the device.
 The score does NOT represent an ecological performance. 
 It's just a score to determine the device's capacities.

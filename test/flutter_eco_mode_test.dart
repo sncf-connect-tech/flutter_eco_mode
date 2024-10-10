@@ -174,45 +174,45 @@ void main() {
   });
 
   group(
-    'getEcoRange',
+    'getDeviceRange',
     () {
       test('should return null when get eco score error', () async {
         when(() => ecoModeApi.getEcoScore())
             .thenAnswer((_) => Future.error('error eco score'));
-        expect(await buildEcoMode().getEcoRange(), null);
+        expect(await buildEcoMode().getDeviceRange(), null);
       });
 
       test('should return null when get eco score null', () async {
         when(() => ecoModeApi.getEcoScore())
             .thenAnswer((_) => Future.value(null));
-        expect(await buildEcoMode().getEcoRange(), null);
+        expect(await buildEcoMode().getDeviceRange(), null);
       });
 
       test('should return low end device', () async {
         when(() => ecoModeApi.getEcoScore())
             .thenAnswer((_) => Future.value(minScoreLowEndDevice));
-        final ecoRange = await buildEcoMode().getEcoRange();
-        expect(ecoRange!.score, minScoreLowEndDevice);
-        expect(ecoRange.range, DeviceEcoRange.lowEnd);
-        expect(ecoRange.isLowEndDevice, true);
+        final deviceRange = await buildEcoMode().getDeviceRange();
+        expect(deviceRange!.score, minScoreLowEndDevice);
+        expect(deviceRange.range, DeviceEcoRange.lowEnd);
+        expect(deviceRange.isLowEndDevice, true);
       });
 
       test('should return mid range device', () async {
         when(() => ecoModeApi.getEcoScore())
             .thenAnswer((_) => Future.value(minScoreMidRangeDevice));
-        final ecoRange = await buildEcoMode().getEcoRange();
-        expect(ecoRange!.score, minScoreMidRangeDevice);
-        expect(ecoRange.range, DeviceEcoRange.midRange);
-        expect(ecoRange.isLowEndDevice, false);
+        final deviceRange = await buildEcoMode().getDeviceRange();
+        expect(deviceRange!.score, minScoreMidRangeDevice);
+        expect(deviceRange.range, DeviceEcoRange.midRange);
+        expect(deviceRange.isLowEndDevice, false);
       });
 
       test('should return high end device', () async {
         when(() => ecoModeApi.getEcoScore())
             .thenAnswer((_) => Future.value(minScoreMidRangeDevice + 0.1));
-        final ecoRange = await buildEcoMode().getEcoRange();
-        expect(ecoRange!.score, minScoreMidRangeDevice + 0.1);
-        expect(ecoRange.range, DeviceEcoRange.highEnd);
-        expect(ecoRange.isLowEndDevice, false);
+        final deviceRange = await buildEcoMode().getDeviceRange();
+        expect(deviceRange!.score, minScoreMidRangeDevice + 0.1);
+        expect(deviceRange.range, DeviceEcoRange.highEnd);
+        expect(deviceRange.isLowEndDevice, false);
       });
     },
   );

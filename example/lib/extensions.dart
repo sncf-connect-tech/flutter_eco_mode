@@ -21,7 +21,7 @@ extension FlutterEcoModeExtension on FlutterEcoMode {
       .map((value) => value > 0 ? "${value.toInt()} %" : "not reachable");
 }
 
-extension FutureEcoRangeExtension on Future<EcoRange?> {
+extension FutureEcoRangeExtension on Future<DeviceRange?> {
   Future<String?> getScore() => then((value) =>
       value?.score != null ? "${(value!.score * 100).toInt()}/100" : null);
 
