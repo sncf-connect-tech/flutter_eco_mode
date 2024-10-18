@@ -1,3 +1,9 @@
+## 0.0.3
+
+> Rename ecoRange deviceRange
+
+- **FEAT**: Rename ecoRange deviceRange .
+
 ## 0.0.2
 
 > Add Eco Mode Stream   
