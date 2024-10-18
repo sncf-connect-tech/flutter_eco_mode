@@ -14,12 +14,12 @@ class LowEndDevicePage extends StatefulWidget {
 }
 
 class _LowEndDevicePageState extends State<LowEndDevicePage> {
-  late Future<EcoRange?> ecoRange;
+  late Future<DeviceRange?> deviceRange;
 
   @override
   void initState() {
     super.initState();
-    ecoRange = widget.ecoMode.getEcoRange();
+    deviceRange = widget.ecoMode.getDeviceRange();
   }
 
   @override
@@ -51,22 +51,22 @@ class _LowEndDevicePageState extends State<LowEndDevicePage> {
           future: widget.ecoMode.getFreeStorage,
         ),
         ResultLine(
-          label: 'Eco range score',
+          label: 'Device range score',
           labelColor: Colors.blue,
           valueColor: Colors.blue,
-          future: ecoRange.getScore,
+          future: deviceRange.getScore,
         ),
         ResultLine(
-          label: 'Device eco range',
+          label: 'Device range',
           labelColor: Colors.blue,
           valueColor: Colors.blue,
-          future: ecoRange.getRange,
+          future: deviceRange.getRange,
         ),
         ResultLine(
           label: 'Is low end device',
           labelColor: Colors.purple,
           valueColor: Colors.purple,
-          future: ecoRange.isLowEndDevice,
+          future: deviceRange.isLowEndDevice,
         ),
       ],
     );

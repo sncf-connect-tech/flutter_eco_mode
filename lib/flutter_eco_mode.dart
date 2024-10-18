@@ -103,13 +103,13 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   }
 
   @override
-  Future<EcoRange?> getEcoRange() async {
-    return _api.getEcoScore().then<EcoRange?>((value) {
+  Future<DeviceRange?> getDeviceRange() async {
+    return _api.getEcoScore().then<DeviceRange?>((value) {
       if (value == null) {
         throw Exception('Error while getting eco score');
       }
       final range = _buildRange(value);
-      return EcoRange(
+      return DeviceRange(
           score: value,
           range: range,
           isLowEndDevice: range == DeviceEcoRange.lowEnd);
