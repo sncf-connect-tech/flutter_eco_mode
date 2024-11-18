@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_BATTERY_CHANGED
 import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.BatteryManager
 import android.os.BatteryManager.BATTERY_STATUS_CHARGING
 import android.os.BatteryManager.BATTERY_STATUS_DISCHARGING
@@ -21,9 +22,16 @@ import android.os.PowerManager.THERMAL_STATUS_NONE
 import android.os.PowerManager.THERMAL_STATUS_SEVERE
 import android.os.PowerManager.THERMAL_STATUS_SHUTDOWN
 import android.os.StatFs
+import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.EventChannel
+import listener.BatteryLevelStreamHandler
+import listener.BatteryStateStreamHandler
+import listener.ConnectivityListener
+import listener.PowerModeStreamHandler
+import listener.getNetworkType
+import listener.getWifiSignalStrength
 import sncf.connect.tech.flutter_eco_mode.BatteryState.CHARGING
 import sncf.connect.tech.flutter_eco_mode.BatteryState.DISCHARGING
 import sncf.connect.tech.flutter_eco_mode.BatteryState.FULL
@@ -40,6 +48,7 @@ class FlutterEcoModePlugin : FlutterPlugin, EcoModeApi {
     private val lowPowerModeEventChannel = "sncf.connect.tech/battery.isLowPowerMode"
     private val batteryStateEventChannel = "sncf.connect.tech/battery.state"
     private val batteryLevelEventChannel = "sncf.connect.tech/battery.level"
+    private val connectivityStateEventChannel = "sncf.connect.tech/connectivity.state"
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         EcoModeApi.setUp(flutterPluginBinding.binaryMessenger, this)
@@ -56,6 +65,14 @@ class FlutterEcoModePlugin : FlutterPlugin, EcoModeApi {
             flutterPluginBinding.binaryMessenger,
             batteryLevelEventChannel,
         ).setStreamHandler(BatteryLevelStreamHandler(context))
+        EventChannel(
+            flutterPluginBinding.binaryMessenger,
+            connectivityStateEventChannel,
+        ).setStreamHandler(
+            ConnectivityListener(
+                context
+            )
+        )
     }
 
 
@@ -73,6 +90,7 @@ class FlutterEcoModePlugin : FlutterPlugin, EcoModeApi {
     }
 
     override fun getBatteryLevel(): Double = getBatteryLevel(getBatteryStatus())
+
     private fun getBatteryLevel(intent: Intent?): Double = intent?.let {
         val level: Int = it.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
         val scale: Int = it.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
@@ -106,7 +124,6 @@ class FlutterEcoModePlugin : FlutterPlugin, EcoModeApi {
         // TODO: check if it returns the total of cores
     }
 
-    /// MEMORY
     override fun getTotalMemory(): Long {
         return Runtime.getRuntime().totalMemory()
     }
@@ -115,7 +132,6 @@ class FlutterEcoModePlugin : FlutterPlugin, EcoModeApi {
         return Runtime.getRuntime().freeMemory()
     }
 
-    /// STORAGE
     override fun getTotalStorage(): Long {
         val statFs = StatFs(Environment.getExternalStorageDirectory().absolutePath)
         val blockSizeLong = statFs.blockSizeLong
@@ -141,6 +157,21 @@ class FlutterEcoModePlugin : FlutterPlugin, EcoModeApi {
 
         return score / nbrParams
     }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    override fun getConnectivity(): Connectivity =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
+            val network = connectivityManager.activeNetwork
+            val telephonyManager = context.getSystemService(TelephonyManager::class.java)
+            val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+            Connectivity(type = connectivityManager.getNetworkType(
+                telephonyManager = telephonyManager,
+                networkCapabilities = networkCapabilities
+            ), wifiSignalStrength = networkCapabilities?.getWifiSignalStrength()?.toLong())
+        } else {
+            Connectivity(type = ConnectivityType.UNKNOWN)
+        }
 
     private fun getBatteryStatus(): Intent? {
         return IntentFilter(ACTION_BATTERY_CHANGED).let { intentFilter ->
@@ -168,113 +199,4 @@ class FlutterEcoModePlugin : FlutterPlugin, EcoModeApi {
     }
 }
 
-class PowerModeStreamHandler(private val context: Context) : EventChannel.StreamHandler {
 
-    private var lowPowerModeEventSink: EventChannel.EventSink? = null
-    private var powerSavingReceiver: BroadcastReceiver? = null
-
-    override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-        lowPowerModeEventSink = events
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setupPowerSavingReceiver()
-        }
-    }
-
-    override fun onCancel(p0: Any?) {
-        context.unregisterReceiver(powerSavingReceiver)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun setupPowerSavingReceiver() {
-        powerSavingReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent?) {
-                val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-                lowPowerModeEventSink?.success(powerManager.isPowerSaveMode)
-            }
-        }
-        val filter = IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
-        context.registerReceiver(powerSavingReceiver, filter)
-    }
-
-}
-
-class BatteryStateStreamHandler(private val context: Context) : EventChannel.StreamHandler {
-
-    private var batteryStateEventSink: EventChannel.EventSink? = null
-    private var batteryStateReceiver: BroadcastReceiver? = null
-
-    override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-        batteryStateEventSink = events
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            setupBatteryStateReceiver()
-        }
-    }
-
-    override fun onCancel(p0: Any?) {
-        context.unregisterReceiver(batteryStateReceiver)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun setupBatteryStateReceiver() {
-        batteryStateReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent?) {
-                val event = when (intent?.action) {
-                    ACTION_BATTERY_CHANGED ->
-                        when (intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)) {
-                            BATTERY_STATUS_CHARGING -> CHARGING.name
-                            BATTERY_STATUS_FULL -> FULL.name
-                            BATTERY_STATUS_DISCHARGING, BATTERY_STATUS_NOT_CHARGING -> DISCHARGING.name
-                            else -> UNKNOWN.name
-                        }
-                    else -> DISCHARGING.name
-                }
-                batteryStateEventSink?.success(event)
-            }
-        }
-        val filterBatteryState = IntentFilter()
-        filterBatteryState.addAction(ACTION_BATTERY_CHANGED)
-        context.registerReceiver(batteryStateReceiver, filterBatteryState)
-    }
-
-}
-
-class BatteryLevelStreamHandler(private val context: Context) : EventChannel.StreamHandler {
-
-    private var batteryLevelEventSink: EventChannel.EventSink? = null
-    private var batteryLevelReceiver: BroadcastReceiver? = null
-
-    override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-        batteryLevelEventSink = events
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setupBatteryLevelReceiver()
-        }
-    }
-
-    override fun onCancel(p0: Any?) {
-        context.unregisterReceiver(batteryLevelReceiver)
-    }
-
-
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun setupBatteryLevelReceiver() {
-
-        batteryLevelReceiver = object : BroadcastReceiver() {
-
-            override fun onReceive(context: Context, intent: Intent?) {
-                val batteryPct = intent?.let { i ->
-                    val level: Int = i.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
-                    val scale: Int = i.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
-                    level * 100 / scale.toFloat()
-                }
-                batteryLevelEventSink?.success(batteryPct?.toDouble())
-            }
-        }
-        val filter = IntentFilter(ACTION_BATTERY_CHANGED)
-        context.registerReceiver(batteryLevelReceiver, filter)
-
-    }
-
-}
