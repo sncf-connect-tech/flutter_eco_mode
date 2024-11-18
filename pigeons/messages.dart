@@ -34,6 +34,24 @@ enum ThermalState {
   unknown,
 }
 
+class Connectivity {
+  final ConnectivityType type;
+  final int? wifiSignalStrength;
+
+  Connectivity({required this.type, this.wifiSignalStrength});
+}
+
+enum ConnectivityType {
+  ethernet,
+  wifi,
+  mobile2g,
+  mobile3g,
+  mobile4g,
+  mobile5g,
+  none,
+  unknown,
+}
+
 @HostApi()
 abstract class EcoModeApi {
   String getPlatformInfo();
@@ -57,4 +75,6 @@ abstract class EcoModeApi {
   int getFreeStorage();
 
   double? getEcoScore();
+
+  Connectivity getConnectivity();
 }

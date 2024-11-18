@@ -22,6 +22,7 @@ public class FlutterEcoModePlugin: NSObject, FlutterPlugin, EcoModeApi {
     static let lowPowerModeEventChannelName = "sncf.connect.tech/battery.isLowPowerMode"
     static let batteryStateEventChannelName = "sncf.connect.tech/battery.state"
     static let batteryLevelEventChannelName = "sncf.connect.tech/battery.level"
+    static let connectivityStateEventChannelName = "sncf.connect.tech/connectivity.state"
     
     static public func register(with registrar: FlutterPluginRegistrar) {
         let messenger: FlutterBinaryMessenger = registrar.messenger()
@@ -33,6 +34,8 @@ public class FlutterEcoModePlugin: NSObject, FlutterPlugin, EcoModeApi {
         FlutterEventChannel(name: batteryStateEventChannelName, binaryMessenger: messenger).setStreamHandler(BatteryStateStreamHandler())
         
         FlutterEventChannel(name: batteryLevelEventChannelName, binaryMessenger: messenger).setStreamHandler(BatteryLevelStreamHandler())
+
+        FlutterEventChannel(name: connectivityStateEventChannelName, binaryMessenger: messenger).setStreamHandler(ConnectivityStateStreamHandler())
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -84,6 +87,10 @@ public class FlutterEcoModePlugin: NSObject, FlutterPlugin, EcoModeApi {
             // Fallback on earlier versions
         }
         return Int64(availabeRam)
+    }
+    
+    func getConnectivity() throws -> Connectivity {
+        return Connectivity(type: .unknown)
     }
     
     func getTotalStorage() throws -> Int64 {
@@ -247,4 +254,19 @@ private func enableBatteryMonitoring() {
     if !device.isBatteryMonitoringEnabled {
         device.isBatteryMonitoringEnabled = true
     }
+}
+
+public class ConnectivityStateStreamHandler: NSObject, FlutterStreamHandler {
+
+    fileprivate var eventSink: FlutterEventSink?
+
+    public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        return nil
+    }
+
+    public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        return nil
+    }
+
+
 }

@@ -3,6 +3,7 @@ version '1.0-SNAPSHOT'
 
 buildscript {
     ext.kotlin_version = '1.7.10'
+
     repositories {
         google()
         mavenCentral()
@@ -12,9 +13,11 @@ buildscript {
         classpath 'com.android.tools.build:gradle:8.3.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
+
 }
 
 allprojects {
+
     repositories {
         google()
         mavenCentral()
@@ -25,6 +28,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+
     if (project.android.hasProperty("namespace")) {
         namespace 'sncf.connect.tech.flutter_eco_mode'
     }
@@ -56,6 +60,7 @@ android {
         testImplementation 'org.powermock:powermock-module-junit4-rule-agent:1.6.2'
         testImplementation 'org.powermock:powermock-module-junit4-rule:1.6.2'
         testImplementation 'org.powermock:powermock-module-junit4:1.6.2'
+        implementation('com.google.code.gson:gson:2.10.1')
     }
 
     tasks.withType(Test).configureEach {
