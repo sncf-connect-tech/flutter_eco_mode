@@ -30,19 +30,31 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
             const EventChannel('sncf.connect.tech/battery.level'))
         .receiveBroadcastStream()
         .listen((event) {
-      _batteryLevelStreamController.add(event);
+      if (event is double) {
+        _batteryLevelStreamController.add(event);
+      } else {
+        log("Battery level event is not a double: $event");
+      }
     });
     (batteryStatusEventChannel ??
             const EventChannel('sncf.connect.tech/battery.state'))
         .receiveBroadcastStream()
         .listen((event) {
-      _batteryStateStreamController.add(event);
+      if (event is String) {
+        _batteryStateStreamController.add(event);
+      } else {
+        log("Battery state event is not a String: $event");
+      }
     });
     (batteryModeEventChannel ??
             const EventChannel('sncf.connect.tech/battery.isLowPowerMode'))
         .receiveBroadcastStream()
         .listen((event) {
-      _batteryLowPowerModeStreamController.add(event);
+      if (event is bool) {
+        _batteryLowPowerModeStreamController.add(event);
+      } else {
+        log("Battery low power mode event is not a bool: $event");
+      }
     });
   }
 

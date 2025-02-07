@@ -13,14 +13,14 @@ class MockEcoModeApi extends Mock implements EcoModeApi {}
 
 void main() {
   late EventChannel batteryLevelEventChannel;
-  late EventChannel batteryStatusEventChannel;
+  late EventChannel batteryStateEventChannel;
   late EventChannel batteryModeEventChannel;
   late EcoModeApi ecoModeApi;
 
   FlutterEcoMode buildEcoMode() => FlutterEcoMode(
         api: ecoModeApi,
         batteryLevelEventChannel: batteryLevelEventChannel,
-        batteryStatusEventChannel: batteryStatusEventChannel,
+        batteryStatusEventChannel: batteryStateEventChannel,
         batteryModeEventChannel: batteryModeEventChannel,
       );
 
@@ -34,11 +34,11 @@ void main() {
     when(() => ecoModeApi.getThermalState())
         .thenAnswer((_) async => ThermalState.safe);
     batteryLevelEventChannel = MockEventChannel();
-    batteryStatusEventChannel = MockEventChannel();
+    batteryStateEventChannel = MockEventChannel();
     batteryModeEventChannel = MockEventChannel();
     when(() => batteryLevelEventChannel.receiveBroadcastStream())
         .thenAnswer((_) => Stream<double>.value(100.0));
-    when(() => batteryStatusEventChannel.receiveBroadcastStream())
+    when(() => batteryStateEventChannel.receiveBroadcastStream())
         .thenAnswer((_) => Stream<String>.value(BatteryState.charging.name));
     when(() => batteryModeEventChannel.receiveBroadcastStream())
         .thenAnswer((_) => Stream<bool>.value(false));
@@ -136,7 +136,7 @@ void main() {
     test('should return false when not enough battery and charging', () async {
       when(() => batteryLevelEventChannel.receiveBroadcastStream())
           .thenAnswer((_) => Stream<double>.value(minEnoughBattery - 1));
-      when(() => batteryStatusEventChannel.receiveBroadcastStream())
+      when(() => batteryStateEventChannel.receiveBroadcastStream())
           .thenAnswer((_) => Stream<String>.value(BatteryState.charging.name));
       buildEcoMode().isBatteryEcoModeStream.listen(expectAsync1((event) {
             expect(event, false);
@@ -146,7 +146,7 @@ void main() {
     test('should return false when enough battery and discharging', () async {
       when(() => batteryLevelEventChannel.receiveBroadcastStream())
           .thenAnswer((_) => Stream<double>.value(minEnoughBattery + 1));
-      when(() => batteryStatusEventChannel.receiveBroadcastStream()).thenAnswer(
+      when(() => batteryStateEventChannel.receiveBroadcastStream()).thenAnswer(
           (_) => Stream<String>.value(BatteryState.discharging.name));
       buildEcoMode().isBatteryEcoModeStream.listen(expectAsync1((event) {
             expect(event, false);
@@ -157,7 +157,7 @@ void main() {
         () async {
       when(() => batteryLevelEventChannel.receiveBroadcastStream())
           .thenAnswer((_) => Stream<double>.value(minEnoughBattery - 1));
-      when(() => batteryStatusEventChannel.receiveBroadcastStream()).thenAnswer(
+      when(() => batteryStateEventChannel.receiveBroadcastStream()).thenAnswer(
           (_) => Stream<String>.value(BatteryState.discharging.name));
       buildEcoMode().isBatteryEcoModeStream.listen(expectAsync1((event) {
             expect(event, true);
@@ -170,6 +170,34 @@ void main() {
       buildEcoMode().isBatteryEcoModeStream.listen(expectAsync1((event) {
             expect(event, true);
           }, count: 1));
+    });
+
+    test('should return nothing when battery state event is not a string',
+        () async {
+      when(() => batteryStateEventChannel.receiveBroadcastStream())
+          .thenAnswer((_) => Stream<bool>.value(false));
+      try {
+        await buildEcoMode()
+            .batteryStateEventStream
+            .timeout(const Duration(milliseconds: 1))
+            .first;
+      } on TimeoutException catch (e) {
+        expect(e.message, 'No stream event');
+      }
+    });
+
+    test('should return nothing when level battery event is not a double',
+        () async {
+      when(() => batteryLevelEventChannel.receiveBroadcastStream())
+          .thenAnswer((_) => Stream<bool>.value(false));
+      try {
+        await buildEcoMode()
+            .batteryLevelEventStream
+            .timeout(const Duration(milliseconds: 1))
+            .first;
+      } on TimeoutException catch (e) {
+        expect(e.message, 'No stream event');
+      }
     });
   });
 
