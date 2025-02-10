@@ -192,8 +192,9 @@ public class BatteryStateStreamHandler: NSObject, FlutterStreamHandler {
     
     @objc func batteryStateChanged(_ notification: Notification) {
         let batteryState = convertBatteryState(state: UIDevice.current.batteryState)
+        let batteryStateString = String(describing: batteryState)
         DispatchQueue.main.async {
-            self.eventSink?(batteryState)
+            self.eventSink?(batteryStateString)
         }
     }
     
