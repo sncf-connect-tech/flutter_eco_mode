@@ -1,3 +1,9 @@
+## 0.0.4
+
+> Fix unsupported event type on streaming battery state between Flutter and iOS
+
+- **FIX**: Fix unsupported event type on streaming battery state between Flutter and iOS .
+
 ## 0.0.3
 
 > Rename ecoRange deviceRange
