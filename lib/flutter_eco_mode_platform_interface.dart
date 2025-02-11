@@ -71,6 +71,18 @@ abstract class FlutterEcoModePlatform extends PlatformInterface {
 
   /// Return the eco range.
   Future<DeviceRange?> getDeviceRange();
+
+  /// Stream an object Connectivity with type and wifi signal strength.
+  Stream<Connectivity> get connectivityStream;
+
+  /// Return an object Connectivity with type and wifi signal strength.
+  Future<Connectivity> getConnectivity();
+
+  /// Return a boolean which represents if the network is good enough.
+  Future<bool?> hasEnoughNetwork();
+
+  /// Stream a boolean which represents if the network is good enough.
+  Stream<bool?> hasEnoughNetworkStream();
 }
 
 class DeviceRange {

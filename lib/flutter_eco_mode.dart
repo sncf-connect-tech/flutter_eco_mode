@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/services.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_eco_mode/streams/combine_latest.dart';
 const double minEnoughBattery = 10.0;
 const double minScoreMidRangeDevice = 0.5;
 const double minScoreLowEndDevice = 0.3;
+const int minWifiSignalStrength = -70;
 
 /// An implementation of [FlutterEcoModePlatform] that uses pigeon.
 class FlutterEcoMode extends FlutterEcoModePlatform {
@@ -19,12 +21,15 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
       StreamController.broadcast();
   final StreamController<bool> _batteryLowPowerModeStreamController =
       StreamController.broadcast();
+  final StreamController<String> _connectivityStreamController =
+      StreamController.broadcast();
 
   FlutterEcoMode({
     EcoModeApi? api,
     EventChannel? batteryLevelEventChannel,
     EventChannel? batteryStatusEventChannel,
     EventChannel? batteryModeEventChannel,
+    EventChannel? connectivityStateEventChannel,
   }) : _api = api ?? EcoModeApi() {
     (batteryLevelEventChannel ??
             const EventChannel('sncf.connect.tech/battery.level'))
@@ -55,6 +60,12 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
       } else {
         log("Battery low power mode event is not a bool: $event");
       }
+    });
+    (connectivityStateEventChannel ??
+            const EventChannel('sncf.connect.tech/connectivity.state'))
+        .receiveBroadcastStream()
+        .listen((event) {
+      _connectivityStreamController.add(event);
     });
   }
 
@@ -112,6 +123,7 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
     _batteryLevelStreamController.close();
     _batteryStateStreamController.close();
     _batteryLowPowerModeStreamController.close();
+    _connectivityStreamController.close();
   }
 
   @override
@@ -214,6 +226,48 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
         batteryLevelEventStream.map((event) => event.isNotEnough),
         batteryStateEventStream.map((event) => event.isDischarging),
       ]).map((event) => event.every((element) => element)).asBroadcastStream();
+
+  @override
+  Stream<Connectivity> get connectivityStream =>
+      _connectivityStreamController.stream.map((event) {
+        try {
+          final connectivityMap = jsonDecode(event);
+          final connectivityTypeString = connectivityMap['type'].toLowerCase();
+          final connectivityType = ConnectivityType.values.firstWhere(
+            (e) => e.name == connectivityTypeString,
+            orElse: () => ConnectivityType.unknown,
+          );
+          final wifiSignalStrength = connectivityMap['wifiSignalStrength'];
+          return Connectivity(
+              type: connectivityType, wifiSignalStrength: wifiSignalStrength);
+        } catch (error, stackTrace) {
+          log(stackTrace.toString(), error: error);
+          return Connectivity(type: ConnectivityType.unknown);
+        }
+      });
+
+  @override
+  Future<Connectivity> getConnectivity() async {
+    return await _api.getConnectivity();
+  }
+
+  @override
+  Future<bool?> hasEnoughNetwork() async {
+    try {
+      final connectivity = await getConnectivity();
+      return connectivity.isEnough;
+    } catch (error, stackTrace) {
+      log(stackTrace.toString(), error: error);
+      return null;
+    }
+  }
+
+  @override
+  Stream<bool?> hasEnoughNetworkStream() {
+    return connectivityStream
+        .map((event) => event.isEnough)
+        .asBroadcastStream();
+  }
 }
 
 extension _BatteryLevel on double {
@@ -227,6 +281,25 @@ extension on BatteryState {
 extension on ThermalState {
   bool get isSeriousAtLeast =>
       this == ThermalState.serious || this == ThermalState.critical;
+}
+
+extension on Connectivity {
+  bool? get isEnough => type == ConnectivityType.unknown
+      ? null
+      : (_isMobileEnoughNetwork ||
+          _isWifiEnoughNetwork ||
+          type == ConnectivityType.ethernet);
+
+  bool get _isMobileEnoughNetwork => [
+        ConnectivityType.mobile5g,
+        ConnectivityType.mobile4g,
+        ConnectivityType.mobile3g
+      ].contains(type);
+
+  bool get _isWifiEnoughNetwork =>
+      ConnectivityType.wifi == type && wifiSignalStrength != null
+          ? wifiSignalStrength! >= minWifiSignalStrength
+          : false;
 }
 
 extension StreamExtensions<T> on Stream<T> {

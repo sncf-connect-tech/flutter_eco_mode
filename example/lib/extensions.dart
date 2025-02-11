@@ -19,6 +19,18 @@ extension FlutterEcoModeExtension on FlutterEcoMode {
 
   Stream<String> getBatteryLevelPercentStream() => batteryLevelEventStream
       .map((value) => value > 0 ? "${value.toInt()} %" : "not reachable");
+
+  Future<String> getConnectivityTypeName() =>
+      getConnectivity().then((value) => value.type.name);
+
+  Future<String> getConnectivitySignalStrength() => getConnectivity()
+      .then((value) => value.wifiSignalStrength?.toString() ?? "not reachable");
+
+  Stream<String> getConnectivityTypeStream() =>
+      connectivityStream.map((value) => value.type.name);
+
+  Stream<String> getConnectivitySignalStrengthStream() => connectivityStream
+      .map((value) => value.wifiSignalStrength?.toString() ?? "not reachable");
 }
 
 extension FutureEcoRangeExtension on Future<DeviceRange?> {

@@ -39,6 +39,7 @@ also to offer a less energy-consuming app.
 | Battery Level                                            |                   Yes                   |                   Yes                   |                   X                   |                   X                   |
 | Battery In Low Power Mode                                |                   Yes                   |                   Yes                   |                   X                   |                   X                   |
 | <span style="color: #3CB371">**Battery Eco Mode**</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> | <span style="color: #3CB371">X</span> |
+| <span style="color: #007FFF">**Connectivity**</span>     | <span style="color: #007FFF">Yes</span> | <span style="color: #007FFF">No</span>  | <span style="color: #007FFF">X</span> | <span style="color: #007FFF">X</span> |
 
 ## Eco Mode
 
@@ -81,6 +82,44 @@ It will return a boolean.
         batteryStateEventStream.map((event) => event.isDischarging),
       ]).map((event) => event.every((element) => element)).asBroadcastStream();
 ``` 
+
+## Connectivity 
+
+### /!\ Only available for Android at the moment
+
+This feature can help you to observe the network, know if the device is connected to the internet, 
+or just want to adapt your app to the network state.
+
+We have created a class **_Connectivity_** which contains basic information about the network.
+
+And you can use directly the methode **_hasEnoughNetwork_** which follows these rules in the code
+
+```
+extension on Connectivity {
+  bool? get isEnough => type == ConnectivityType.unknown
+      ? null
+      : (_isMobileEnoughNetwork || _isWifiEnoughNetwork || type == ConnectivityType.ethernet);
+
+  bool get _isMobileEnoughNetwork =>
+      [ConnectivityType.mobile5g, ConnectivityType.mobile4g, ConnectivityType.mobile3g].contains(type);
+
+  bool get _isWifiEnoughNetwork =>
+      ConnectivityType.wifi == type && wifiSignalStrength != null ? wifiSignalStrength! >= minWifiSignalStrength : false;
+}
+```
+
+### How does it work ?
+
+* First, we retrieve the type of network via native access.
+* Then, if we have Wifi identified we catch the signal strength.
+* And finally, we build and return the object Connectivity.
+
+At this moment, you can ask your self. Is it really reliable ? Is there a better way ?
+
+Probably the better thing to do is to make your own speed test in your app. 
+You're right, it's more precise, and you can directly define what is a good network fo your purposes.
+But you need to ping a server, and it's not really eco-friendly. 
+Here we just use the native access, trust directly your device and OS.
 
 ## Example
 

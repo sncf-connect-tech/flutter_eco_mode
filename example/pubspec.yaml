@@ -4,6 +4,8 @@ description: "Demonstrates how to use the flutter_eco_mode plugin."
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
+version: 0.0.3
+
 environment:
   sdk: '>=3.2.3 <4.0.0'
 
