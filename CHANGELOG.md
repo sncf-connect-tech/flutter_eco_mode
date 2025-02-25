@@ -1,14 +1,20 @@
+## 0.1.0
+
+> Add feature connectivity for Android devices
+
+- **FEAT**: Add feature connectivity for Android devices.
+
 ## 0.0.4
 
 > Fix unsupported event type on streaming battery state between Flutter and iOS
 
-- **FIX**: Fix unsupported event type on streaming battery state between Flutter and iOS .
+- **FIX**: Fix unsupported event type on streaming battery state between Flutter and iOS.
 
 ## 0.0.3
 
 > Rename ecoRange deviceRange
 
-- **FEAT**: Rename ecoRange deviceRange .
+- **FEAT**: Rename ecoRange deviceRange.
 
 ## 0.0.2
 
