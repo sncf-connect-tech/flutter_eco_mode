@@ -70,7 +70,7 @@ feel free to give the best user eco experience to your final users :)
 This feature combines different battery information to determine if the device is in **_eco-mode_** or not.
 It will return a boolean.
 
-```
+```dart
 @override
   Stream<bool?> get isBatteryEcoModeStream => CombineLatestStream.list([
         _isNotEnoughBatteryStream(),
@@ -94,7 +94,7 @@ We have created a class **_Connectivity_** which contains basic information abou
 
 And you can use directly the methode **_hasEnoughNetwork_** which follows these rules in the code
 
-```
+```dart
 extension on Connectivity {
   bool? get isEnough => type == ConnectivityType.unknown
       ? null
@@ -131,9 +131,5 @@ We are open to any contributions or suggestions. If you have any questions, plea
 
 ## License
 
-Copyright © 2024 SNCF Connect & Tech.
+Copyright © 2026 SNCF Connect & Tech.
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-***
-
-_This file has been written on February 22, 2024_.

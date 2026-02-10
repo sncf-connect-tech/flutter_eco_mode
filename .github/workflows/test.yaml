@@ -61,9 +61,31 @@ jobs:
       - name: Run tests
         run: flutter test ./test/*
 
+  ios-build-spm:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: |
+          flutter config --enable-swift-package-manager
+          flutter pub get
+          cd example
+          flutter build ios --config-only --no-codesign
+
+      - name: Build iOS framework with SPM
+        run: |
+          cd example
+          flutter build ios --simulator
+
   upload-coverage:
     runs-on: ubuntu-latest
-    needs: [flutter-tests]
+    needs: [flutter-tests, flutter-minimum-version-tests, ios-build-spm]
     if: always() && !cancelled() && needs.flutter-tests.result == 'success'
     steps:
       - uses: actions/checkout@v4

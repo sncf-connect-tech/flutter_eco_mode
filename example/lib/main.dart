@@ -14,33 +14,31 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        theme: ThemeData(
-          appBarTheme: const AppBarTheme(
-            elevation: 5,
-            shadowColor: Colors.grey,
-            backgroundColor: Colors.blueAccent,
-            foregroundColor: Colors.white,
-            titleTextStyle: TextStyle(fontSize: 25),
-          ),
-          textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.blueAccent,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              elevation: 5,
-              shadowColor: Colors.grey,
-              minimumSize: const Size(250, 50),
-              textStyle: const TextStyle(fontSize: 25),
-            ),
-          ),
+    theme: ThemeData(
+      appBarTheme: const AppBarTheme(
+        elevation: 5,
+        shadowColor: Colors.grey,
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+        titleTextStyle: TextStyle(fontSize: 25),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.blueAccent,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          elevation: 5,
+          shadowColor: Colors.grey,
+          minimumSize: const Size(250, 50),
+          textStyle: const TextStyle(fontSize: 25),
         ),
-        home: Scaffold(
-          appBar: AppBar(
-            title: const Text('Example'),
-          ),
-          body: const _MyApp(),
-        ),
-      );
+      ),
+    ),
+    home: Scaffold(
+      appBar: AppBar(title: const Text('Example')),
+      body: const _MyApp(),
+    ),
+  );
 }
 
 class _MyApp extends StatefulWidget {
@@ -72,37 +70,44 @@ class _MyAppState extends State<_MyApp> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (BuildContext context) => WrapperPage(
-                    LowEndDevicePage(plugin),
-                    title: "Low End Device"),
-              ),
-            ),
+            onPressed:
+                () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder:
+                        (BuildContext context) => WrapperPage(
+                          LowEndDevicePage(plugin),
+                          title: "Low End Device",
+                        ),
+                  ),
+                ),
             child: const Text("Low End Device"),
           ),
           const SizedBox(height: 32),
           TextButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (BuildContext context) => WrapperPage(
-                  EcoBatteryPage(plugin),
-                  title: "Eco Battery",
+            onPressed:
+                () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder:
+                        (BuildContext context) => WrapperPage(
+                          EcoBatteryPage(plugin),
+                          title: "Eco Battery",
+                        ),
+                  ),
                 ),
-              ),
-            ),
             child: const Text("Eco Battery"),
           ),
           const SizedBox(height: 32),
           TextButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (BuildContext context) => WrapperPage(
-                  ConnectivityStatePage(plugin),
-                  title: "Connectivity State",
+            onPressed:
+                () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder:
+                        (BuildContext context) => WrapperPage(
+                          ConnectivityStatePage(plugin),
+                          title: "Connectivity State",
+                        ),
+                  ),
                 ),
-              ),
-            ),
             child: const Text("Connectivity State"),
           ),
         ],

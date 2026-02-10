@@ -11,24 +11,22 @@ class ConnectivityStatePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ResultsView(
-      [
-        ResultLine(
-          label: 'Connectivity type',
-          future: ecoMode.getConnectivityTypeName,
-          stream: ecoMode.getConnectivityTypeStream,
-        ),
-        ResultLine(
-          label: 'Wifi signal strength',
-          future: ecoMode.getConnectivitySignalStrength,
-          stream: ecoMode.getConnectivitySignalStrengthStream,
-        ),
-        ResultLine(
-          label: 'Has enough Network',
-          future: ecoMode.hasEnoughNetwork,
-          stream: ecoMode.hasEnoughNetworkStream,
-        ),
-      ],
-    );
+    return ResultsView([
+      ResultLine(
+        label: 'Connectivity type',
+        future: ecoMode.getConnectivityTypeName,
+        stream: ecoMode.getConnectivityTypeStream,
+      ),
+      ResultLine(
+        label: 'Wifi signal strength',
+        future: ecoMode.getConnectivitySignalStrength,
+        stream: ecoMode.getConnectivitySignalStrengthStream,
+      ),
+      ResultLine(
+        label: 'Has enough Network',
+        future: ecoMode.hasEnoughNetwork,
+        stream: ecoMode.hasEnoughNetworkStream,
+      ),
+    ]);
   }
 }

@@ -30,6 +30,9 @@ build/
 
 # FVM Version Cache
 .fvm/
+.fvmrc
 
 # Coverage
 coverage/
+
+.vscode
