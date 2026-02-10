@@ -1,5 +1,4 @@
 import 'package:flutter_eco_mode/flutter_eco_mode.dart';
-import 'package:flutter_eco_mode/flutter_eco_mode_platform_interface.dart';
 
 extension FlutterEcoModeExtension on FlutterEcoMode {
   Future<String> getBatteryStateName() =>

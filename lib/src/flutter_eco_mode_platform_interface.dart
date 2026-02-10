@@ -1,5 +1,5 @@
-import 'package:flutter_eco_mode/flutter_eco_mode.dart';
-import 'package:flutter_eco_mode/messages.g.dart';
+import 'package:flutter_eco_mode/src/flutter_eco_mode.dart';
+import 'package:flutter_eco_mode/src/messages.g.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// The interface that implementations of flutter_eco_mode must implement.
