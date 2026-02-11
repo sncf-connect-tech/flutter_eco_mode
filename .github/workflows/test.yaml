@@ -61,9 +61,28 @@ jobs:
       - name: Run tests
         run: flutter test ./test/*
 
+  android-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: |
+          flutter pub get
+
+      - name: Build Android APK
+        run: |
+          cd example
+          flutter build apk --debug
+
   upload-coverage:
     runs-on: ubuntu-latest
-    needs: [flutter-tests]
+    needs: [flutter-tests, flutter-minimum-version-tests, android-build]
     if: always() && !cancelled() && needs.flutter-tests.result == 'success'
     steps:
       - uses: actions/checkout@v4
