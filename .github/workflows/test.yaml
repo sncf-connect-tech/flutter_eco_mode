@@ -66,6 +66,8 @@ jobs:
     needs: [flutter-tests]
     if: always() && !cancelled() && needs.flutter-tests.result == 'success'
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download flutter coverage report
         uses: actions/download-artifact@v4
         with:
