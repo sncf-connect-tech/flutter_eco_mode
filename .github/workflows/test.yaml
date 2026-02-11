@@ -1,51 +1,81 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Test
+name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+
+env:
+  FLUTTER_MINIMUM_VERSION: 3.29.0
 
 jobs:
-  build:
+  flutter-tests:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: hrishikesh-kadam/setup-lcov@v1
 
-      # Note: This workflow uses the latest stable version of the Dart SDK.
-      # You can specify other versions if desired, see documentation here:
-      # https://github.com/dart-lang/setup-dart/blob/main/README.md
-      # - uses: dart-lang/setup-dart@v1
       - uses: subosito/flutter-action@v2
-
-      - name: Disable analytics
-        run: flutter config --no-analytics
+        with:
+          channel: 'stable'
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed .
-
-      # Consider passing '--fatal-infos' for slightly stricter analysis.
       - name: Analyze project source
-        run: flutter analyze --fatal-infos
-        working-directory: lib
+        run: dart analyze . --fatal-infos
+
+      - name: Format code
+        run: dart format . --set-exit-if-changed
 
       - name: Run tests
-        run: flutter test --coverage
+        run: flutter test ./test/* --coverage
 
       - name: Exclude coverage
-        run: lcov --remove coverage/lcov.info 'lib/flutter_eco_mode_platform_interface.dart' 'lib/messages.g.dart' 'lib/streams/*' -o coverage/lcov.info
+        run: lcov --remove coverage/lcov.info 'lib/src/flutter_eco_mode_platform_interface.dart' 'lib/src/messages.g.dart' 'lib/src/streams/*' -o coverage/lcov.info
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4.0.1
+      - name: Upload coverage report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-coverage
+          path: coverage/lcov.info
+
+  flutter-minimum-version-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_MINIMUM_VERSION }}
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze project source
+        run: dart analyze . --fatal-infos
+
+      - name: Run tests
+        run: flutter test ./test/*
+
+  upload-coverage:
+    runs-on: ubuntu-latest
+    needs: [flutter-tests]
+    if: always() && !cancelled() && needs.flutter-tests.result == 'success'
+    steps:
+      - name: Download flutter coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: flutter-coverage
+          path: coverage
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+          files: coverage/lcov.info
+          flags: unittests

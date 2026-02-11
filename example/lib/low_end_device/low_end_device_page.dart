@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_eco_mode/flutter_eco_mode.dart';
-import 'package:flutter_eco_mode/flutter_eco_mode_platform_interface.dart';
 import 'package:flutter_eco_mode_example/extensions.dart';
 import 'package:flutter_eco_mode_example/results.dart';
 

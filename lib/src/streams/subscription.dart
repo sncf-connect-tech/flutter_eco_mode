@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter_eco_mode/streams/future.dart';
+import 'package:flutter_eco_mode/src/streams/future.dart';
 
 /// @internal
 /// Extensions for [Iterable] of [StreamSubscription]s.
