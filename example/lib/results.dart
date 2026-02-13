@@ -27,22 +27,20 @@ class ResultsView extends StatelessWidget {
     return GridView.count(
       crossAxisCount: 2,
       childAspectRatio: 5 / 2,
-      children: resultLines
-          .map(
-            (line) => [
-              _ResultTitle(
-                line.label,
-                labelColor: line.labelColor,
-              ),
-              _Result(
-                future: line.future,
-                stream: line.stream,
-                valueColor: line.valueColor,
-              ),
-            ],
-          )
-          .expand((e) => e)
-          .toList(),
+      children:
+          resultLines
+              .map(
+                (line) => [
+                  _ResultTitle(line.label, labelColor: line.labelColor),
+                  _Result(
+                    future: line.future,
+                    stream: line.stream,
+                    valueColor: line.valueColor,
+                  ),
+                ],
+              )
+              .expand((e) => e)
+              .toList(),
     );
   }
 }
@@ -51,20 +49,14 @@ class _ResultTitle extends StatelessWidget {
   final String label;
   final Color? labelColor;
 
-  const _ResultTitle(
-    this.label, {
-    this.labelColor = Colors.transparent,
-  });
+  const _ResultTitle(this.label, {this.labelColor = Colors.transparent});
 
   @override
   Widget build(BuildContext context) {
     return _ResultDecoration(
       Text(
         label,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: labelColor,
-        ),
+        style: TextStyle(fontWeight: FontWeight.bold, color: labelColor),
       ),
     );
   }
@@ -103,19 +95,17 @@ class _ResultState extends State<_Result> {
     return _ResultDecoration(
       widget.stream != null
           ? StreamBuilder(
-              stream: _stream,
-              builder: (_, snapshot) => _ResultAsync(
-                snapshot,
-                color: widget.valueColor,
-              ),
-            )
+            stream: _stream,
+            builder:
+                (_, snapshot) =>
+                    _ResultAsync(snapshot, color: widget.valueColor),
+          )
           : FutureBuilder(
-              future: _future,
-              builder: (_, snapshot) => _ResultAsync(
-                snapshot,
-                color: widget.valueColor,
-              ),
-            ),
+            future: _future,
+            builder:
+                (_, snapshot) =>
+                    _ResultAsync(snapshot, color: widget.valueColor),
+          ),
       alignment: Alignment.center,
     );
   }
@@ -125,24 +115,14 @@ class _ResultAsync<T> extends StatelessWidget {
   final AsyncSnapshot<T> snapshot;
   final Color? color;
 
-  const _ResultAsync(
-    this.snapshot, {
-    super.key,
-    this.color,
-  });
+  const _ResultAsync(this.snapshot, {super.key, this.color});
 
   @override
   Widget build(BuildContext context) {
     if (snapshot.hasData && snapshot.data != null) {
-      return Text(
-        '${snapshot.data}',
-        style: TextStyle(color: color),
-      );
+      return Text('${snapshot.data}', style: TextStyle(color: color));
     } else if (snapshot.hasError) {
-      return Text(
-        'not reachable',
-        style: TextStyle(color: color),
-      );
+      return Text('not reachable', style: TextStyle(color: color));
     } else {
       return const CircularProgressIndicator();
     }
@@ -160,15 +140,9 @@ class _ResultDecoration extends StatelessWidget {
     return Container(
       alignment: alignment ?? Alignment.centerLeft,
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.black,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.black, width: 1),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: widget,
-      ),
+      child: Padding(padding: const EdgeInsets.all(8.0), child: widget),
     );
   }
 }

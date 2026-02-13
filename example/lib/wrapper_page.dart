@@ -11,17 +11,15 @@ class WrapperPage extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-            title: Text(title),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            )),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: child,
+          title: Text(title),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
         ),
+        body: Padding(padding: const EdgeInsets.all(8.0), child: child),
       ),
     );
   }
