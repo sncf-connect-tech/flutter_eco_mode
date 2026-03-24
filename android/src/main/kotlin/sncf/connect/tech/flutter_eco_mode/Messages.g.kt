@@ -221,7 +221,7 @@ interface EcoModeApi {
   fun getFreeMemory(): Long
   fun getTotalStorage(): Long
   fun getFreeStorage(): Long
-  fun getEcoScore(): Double?
+  fun getEcoScore(): Double
   fun getConnectivity(callback: (Result<Connectivity>) -> Unit)
   fun requestNetworkStatePermission(callback: (Result<Boolean>) -> Unit)
   fun requestPhoneStatePermission(callback: (Result<Boolean>) -> Unit)

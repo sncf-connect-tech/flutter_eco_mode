@@ -1,10 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+
 import 'package:flutter_eco_mode/flutter_eco_mode.dart';
 import 'package:flutter_eco_mode/src/constants.dart';
 import 'package:flutter_eco_mode/src/messages.g.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 
 class MockEcoModeApi extends Mock implements EcoModeApi {}
 
@@ -451,7 +452,7 @@ void main() {
           final result = await ecoMode.getDeviceRange();
 
           expect(result, isNotNull);
-          expect(result!.range, DeviceEcoRange.highEnd);
+          expect(result.range, DeviceEcoRange.highEnd);
           expect(result.isLowEndDevice, false);
         },
       );
@@ -467,7 +468,7 @@ void main() {
           final result = await ecoMode.getDeviceRange();
 
           expect(result, isNotNull);
-          expect(result!.range, DeviceEcoRange.midRange);
+          expect(result.range, DeviceEcoRange.midRange);
           expect(result.isLowEndDevice, false);
         },
       );
@@ -483,19 +484,10 @@ void main() {
           final result = await ecoMode.getDeviceRange();
 
           expect(result, isNotNull);
-          expect(result!.range, DeviceEcoRange.lowEnd);
+          expect(result.range, DeviceEcoRange.lowEnd);
           expect(result.isLowEndDevice, true);
         },
       );
-
-      test('should return null when API returns null', () async {
-        when(() => ecoModeApi.getEcoScore()).thenAnswer((_) async => null);
-
-        final ecoMode = buildEcoMode();
-        final result = await ecoMode.getDeviceRange();
-
-        expect(result, null);
-      });
 
       test('should set correct score value in result', () async {
         const score = 0.75;
@@ -504,7 +496,7 @@ void main() {
         final ecoMode = buildEcoMode();
         final result = await ecoMode.getDeviceRange();
 
-        expect(result!.score, score);
+        expect(result.score, score);
       });
 
       test(
@@ -517,7 +509,7 @@ void main() {
           final ecoMode = buildEcoMode();
           final result = await ecoMode.getDeviceRange();
 
-          expect(result!.range, DeviceEcoRange.midRange);
+          expect(result.range, DeviceEcoRange.midRange);
         },
       );
     });

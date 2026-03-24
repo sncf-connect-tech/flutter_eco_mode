@@ -1,6 +1,8 @@
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
+import 'package:flutter_eco_mode/src/constants.dart';
 import 'package:flutter_eco_mode/src/flutter_eco_mode.dart';
 import 'package:flutter_eco_mode/src/messages.g.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// The interface that implementations of flutter_eco_mode must implement.
 abstract class FlutterEcoModePlatform extends PlatformInterface {
@@ -25,10 +27,10 @@ abstract class FlutterEcoModePlatform extends PlatformInterface {
   }
 
   /// Return the current platform info.
-  Future<String?> getPlatformInfo();
+  Future<String> getPlatformInfo();
 
   /// Return the current battery level.
-  Future<double?> getBatteryLevel();
+  Future<double> getBatteryLevel();
 
   /// Return a stream of battery level.
   Stream<double> get batteryLevelEventStream;
@@ -40,7 +42,7 @@ abstract class FlutterEcoModePlatform extends PlatformInterface {
   Stream<BatteryState> get batteryStateEventStream;
 
   /// Return the current battery save mode.
-  Future<bool?> isBatteryInLowPowerMode();
+  Future<bool> isBatteryInLowPowerMode();
 
   /// Return a stream of battery save mode change.
   Stream<bool> get lowPowerModeEventStream;
@@ -49,28 +51,28 @@ abstract class FlutterEcoModePlatform extends PlatformInterface {
   Future<ThermalState> getThermalState();
 
   /// Return the number of core.
-  Future<int?> getProcessorCount();
+  Future<int> getProcessorCount();
 
   /// Return the total RAM.
-  Future<int?> getTotalMemory();
+  Future<int> getTotalMemory();
 
   /// Return the available RAM.
-  Future<int?> getFreeMemory();
+  Future<int> getFreeMemory();
 
   /// Return the total disk space.
-  Future<int?> getTotalStorage();
+  Future<int> getTotalStorage();
 
   /// Return the available disk space.
-  Future<int?> getFreeStorage();
+  Future<int> getFreeStorage();
 
   /// Return if the battery is in eco mode.
-  Future<bool?> isBatteryEcoMode();
+  Future<bool> isBatteryEcoMode();
 
   /// Return a stream is battery eco mode.
-  Stream<bool?> get isBatteryEcoModeStream;
+  Stream<bool> get isBatteryEcoModeStream;
 
   /// Return the eco range.
-  Future<DeviceRange?> getDeviceRange();
+  Future<DeviceRange> getDeviceRange();
 
   /// Stream an object Connectivity with type and wifi signal strength.
   Stream<Connectivity> get connectivityStream;
@@ -86,15 +88,17 @@ abstract class FlutterEcoModePlatform extends PlatformInterface {
 }
 
 class DeviceRange {
-  double score;
-  DeviceEcoRange range;
-  bool isLowEndDevice;
+  final double score;
 
-  DeviceRange({
-    required this.score,
-    required this.range,
-    this.isLowEndDevice = false,
-  });
+  DeviceEcoRange get range => switch (score) {
+    > minScoreMidRangeDevice => DeviceEcoRange.highEnd,
+    > minScoreLowEndDevice => DeviceEcoRange.midRange,
+    _ => DeviceEcoRange.lowEnd,
+  };
+
+  bool get isLowEndDevice => range == DeviceEcoRange.lowEnd;
+
+  const DeviceRange(this.score);
 }
 
 enum DeviceEcoRange { lowEnd, midRange, highEnd }

@@ -447,7 +447,7 @@ class EcoModeApi {
     }
   }
 
-  Future<double?> getEcoScore() async {
+  Future<double> getEcoScore() async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.flutter_eco_mode.EcoModeApi.getEcoScore$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
@@ -465,8 +465,13 @@ class EcoModeApi {
         message: pigeonVar_replyList[1] as String?,
         details: pigeonVar_replyList[2],
       );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
     } else {
-      return (pigeonVar_replyList[0] as double?);
+      return (pigeonVar_replyList[0] as double?)!;
     }
   }
 

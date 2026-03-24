@@ -118,7 +118,7 @@ void main() {
         ).thenAnswer((_) async => minScoreLowEndDevice - 0.1);
         final deviceRange = await buildEcoMode().getDeviceRange();
         expect(deviceRange, isNotNull);
-        expect(deviceRange!.score, minScoreLowEndDevice - 0.1);
+        expect(deviceRange.score, minScoreLowEndDevice - 0.1);
       });
 
       test('should handle eco score at mid-point', () async {
@@ -127,14 +127,14 @@ void main() {
         ).thenAnswer((_) async => minScoreMidRangeDevice);
         final deviceRange = await buildEcoMode().getDeviceRange();
         expect(deviceRange, isNotNull);
-        expect(deviceRange!.range, DeviceEcoRange.midRange);
+        expect(deviceRange.range, DeviceEcoRange.midRange);
       });
 
       test('should handle max eco score', () async {
         when(() => ecoModeApi.getEcoScore()).thenAnswer((_) async => 1.0);
         final deviceRange = await buildEcoMode().getDeviceRange();
         expect(deviceRange, isNotNull);
-        expect(deviceRange!.range, DeviceEcoRange.highEnd);
+        expect(deviceRange.range, DeviceEcoRange.highEnd);
       });
     });
 
@@ -340,7 +340,7 @@ void main() {
         final total = await ecoMode.getTotalMemory();
         final free = await ecoMode.getFreeMemory();
 
-        expect(free, lessThan(total!));
+        expect(free, lessThan(total));
       });
 
       test('should handle storage in ascending order', () async {

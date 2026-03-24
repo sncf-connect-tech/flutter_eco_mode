@@ -24,7 +24,7 @@ class EcoModeImplem: EcoModeApi, EcoModeComponent {
     var powerModeListener: DisposableStreamListener { _powerModeListener }
     var connectivityListener: DisposableStreamListener { _connectivityStateListener }
     
-    func getEcoScore() throws -> Double? {
+    func getEcoScore() throws -> Double {
         //TODO vérifier l'OS, si en dessous de iphone 8 score --
         let nbrParams = 3
         var score = nbrParams

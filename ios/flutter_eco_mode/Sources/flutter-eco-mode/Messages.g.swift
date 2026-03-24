@@ -266,7 +266,7 @@ protocol EcoModeApi {
   func getFreeMemory() throws -> Int64
   func getTotalStorage() throws -> Int64
   func getFreeStorage() throws -> Int64
-  func getEcoScore() throws -> Double?
+  func getEcoScore() throws -> Double
   func getConnectivity(completion: @escaping (Result<Connectivity, Error>) -> Void)
   func requestNetworkStatePermission(completion: @escaping (Result<Bool, Error>) -> Void)
   func requestPhoneStatePermission(completion: @escaping (Result<Bool, Error>) -> Void)
