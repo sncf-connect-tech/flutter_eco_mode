@@ -438,6 +438,19 @@ void main() {
 
         expect(result, false);
       });
+
+      test('should throw exception when all API calls fail', () async {
+        when(() => ecoModeApi.getBatteryLevel()).thenThrow(Exception('Error'));
+        when(() => ecoModeApi.getBatteryState()).thenThrow(Exception('Error'));
+        when(
+          () => ecoModeApi.isBatteryInLowPowerMode(),
+        ).thenThrow(Exception('Error'));
+        when(() => ecoModeApi.getThermalState()).thenThrow(Exception('Error'));
+
+        final ecoMode = buildEcoMode();
+
+        expect(() => ecoMode.isBatteryEcoMode(), throwsA(isA<Exception>()));
+      });
     });
 
     group('getDeviceRange method', () {
