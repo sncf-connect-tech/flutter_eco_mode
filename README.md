@@ -39,7 +39,7 @@ also to offer a less energy-consuming app.
 | Battery Level                                            |                   Yes                   |                   Yes                   |                   X                   |                   X                   |
 | Battery In Low Power Mode                                |                   Yes                   |                   Yes                   |                   X                   |                   X                   |
 | <span style="color: #3CB371">**Battery Eco Mode**</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">Yes</span> | <span style="color: #3CB371">X</span> | <span style="color: #3CB371">X</span> |
-| <span style="color: #007FFF">**Connectivity**</span>     | <span style="color: #007FFF">Yes</span> | <span style="color: #007FFF">No</span>  | <span style="color: #007FFF">X</span> | <span style="color: #007FFF">X</span> |
+| <span style="color: #007FFF">**Connectivity**</span>     | <span style="color: #007FFF">Yes</span> | <span style="color: #007FFF">Yes</span> | <span style="color: #007FFF">X</span> | <span style="color: #007FFF">X</span> |
 
 ## Eco Mode
 
@@ -83,11 +83,9 @@ It will return a boolean.
       ]).map((event) => event.every((element) => element)).asBroadcastStream();
 ``` 
 
-## Connectivity 
+## Connectivity
 
-### /!\ Only available for Android at the moment
-
-This feature can help you to observe the network, know if the device is connected to the internet, 
+This feature can help you to observe the network, know if the device is connected to the internet,
 or just want to adapt your app to the network state.
 
 We have created a class **_Connectivity_** which contains basic information about the network.
@@ -111,7 +109,7 @@ extension on Connectivity {
 ### How does it work ?
 
 * First, we retrieve the type of network via native access.
-* Then, if we have Wifi identified we catch the signal strength.
+* Then, if we have Wifi identified we catch the signal strength (Only for Android at the moment).
 * And finally, we build and return the object Connectivity.
 
 At this moment, you can ask your self. Is it really reliable ? Is there a better way ?
