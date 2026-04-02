@@ -109,7 +109,7 @@ extension on Connectivity {
 ### How does it work ?
 
 * First, we retrieve the type of network via native access.
-* Then, if we have Wifi identified we catch the signal strength (Only for Android at the moment).
+* Then, if we have Wifi identified we catch the signal strength (Simulated on iOS based on network quality).
 * And finally, we build and return the object Connectivity.
 
 At this moment, you can ask your self. Is it really reliable ? Is there a better way ?

@@ -35,9 +35,13 @@ class EcoConnectivityManager {
     }
     
     private func mapPathToConnectivity(_ path: NWPath) -> Connectivity {
+        let isLowQuality = path.isConstrained || path.isExpensive
+        // Use -60 for good quality, -80 for low quality (threshold is -70 in Dart)
+        let simulatedSignalStrength: Int64 = isLowQuality ? -80 : -60
+        
         if path.status == .satisfied {
             if path.usesInterfaceType(.wifi) {
-                return Connectivity(type: .wifi)
+                return Connectivity(type: .wifi, wifiSignalStrength: simulatedSignalStrength)
             } else if path.usesInterfaceType(.cellular) {
                 return getDetailedMobileConnectivity()
             } else if path.usesInterfaceType(.wiredEthernet) {
