@@ -10,6 +10,9 @@ import Network
 import CoreTelephony
 
 class EcoConnectivityManager {
+    private let goodWifiSignalStrength: Int64 = -60
+    private let lowWifiSignalStrength: Int64 = -80
+
     static let shared = EcoConnectivityManager()
     
     private let monitor = NWPathMonitor()
@@ -37,7 +40,7 @@ class EcoConnectivityManager {
     private func mapPathToConnectivity(_ path: NWPath) -> Connectivity {
         let isLowQuality = path.isConstrained || path.isExpensive
         // Use -60 for good quality, -80 for low quality (threshold is -70 in Dart)
-        let simulatedSignalStrength: Int64 = isLowQuality ? -80 : -60
+        let simulatedSignalStrength: Int64 = isLowQuality ? lowWifiSignalStrength : goodWifiSignalStrength
         
         if path.status == .satisfied {
             if path.usesInterfaceType(.wifi) {
@@ -56,20 +59,22 @@ class EcoConnectivityManager {
     private func getDetailedMobileConnectivity() -> Connectivity {
         var type: ConnectivityType = .unknown
         
-        let networkInfo = CTTelephonyNetworkInfo()
-        // On simulator or without a SIM card, serviceCurrentRadioAccessTechnology will be nil
-        if let radioAccessTechnology = networkInfo.serviceCurrentRadioAccessTechnology?.values.first {
-            switch radioAccessTechnology {
-            case CTRadioAccessTechnologyGPRS, CTRadioAccessTechnologyEdge, CTRadioAccessTechnologyCDMA1x:
-                type = .mobile2g
-            case CTRadioAccessTechnologyWCDMA, CTRadioAccessTechnologyHSDPA, CTRadioAccessTechnologyHSUPA, CTRadioAccessTechnologyCDMAEVDORev0, CTRadioAccessTechnologyCDMAEVDORevA, CTRadioAccessTechnologyCDMAEVDORevB, CTRadioAccessTechnologyeHRPD:
-                type = .mobile3g
-            case CTRadioAccessTechnologyLTE:
-                type = .mobile4g
-            default:
-                if #available(iOS 14.1, *) {
-                    if radioAccessTechnology == CTRadioAccessTechnologyNRNSA || radioAccessTechnology == CTRadioAccessTechnologyNR {
-                        type = .mobile5g
+        DispatchQueue.main.sync {
+            let networkInfo = CTTelephonyNetworkInfo()
+            // On simulator or without a SIM card, serviceCurrentRadioAccessTechnology will be nil
+            if let radioAccessTechnology = networkInfo.serviceCurrentRadioAccessTechnology?.values.first {
+                switch radioAccessTechnology {
+                case CTRadioAccessTechnologyGPRS, CTRadioAccessTechnologyEdge, CTRadioAccessTechnologyCDMA1x:
+                    type = .mobile2g
+                case CTRadioAccessTechnologyWCDMA, CTRadioAccessTechnologyHSDPA, CTRadioAccessTechnologyHSUPA, CTRadioAccessTechnologyCDMAEVDORev0, CTRadioAccessTechnologyCDMAEVDORevA, CTRadioAccessTechnologyCDMAEVDORevB, CTRadioAccessTechnologyeHRPD:
+                    type = .mobile3g
+                case CTRadioAccessTechnologyLTE:
+                    type = .mobile4g
+                default:
+                    if #available(iOS 14.1, *) {
+                        if radioAccessTechnology == CTRadioAccessTechnologyNRNSA || radioAccessTechnology == CTRadioAccessTechnologyNR {
+                            type = .mobile5g
+                        }
                     }
                 }
             }
