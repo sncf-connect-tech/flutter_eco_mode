@@ -14,7 +14,13 @@ class ConnectivityStateListener: ConnectivityStreamHandler, DisposableStreamList
 
     override func onListen(withArguments arguments: Any?, sink: PigeonEventSink<Connectivity>) {
         self.eventSink = sink
-        sendUpdate()
+        
+        EcoConnectivityManager.shared.onConnectivityChanged = { [weak self] connectivity in
+            self?.sendUpdate(connectivity)
+        }
+        
+        // Send initial state
+        sendUpdate(EcoConnectivityManager.shared.getConnectivity())
     }
 
     override func onCancel(withArguments arguments: Any?) {
@@ -32,24 +38,23 @@ class ConnectivityStateListener: ConnectivityStreamHandler, DisposableStreamList
         FlutterEventChannel(name: channelName, binaryMessenger: binaryMessenger, codec: messagesPigeonMethodCodec).setStreamHandler(nil)
     }
     
-    private func sendUpdate() {
-        let current = Connectivity(type: .unknown)
-        
+    private func sendUpdate(_ connectivity: Connectivity) {
         if let previousConnectivity = self.previousConnectivity {
-            if previousConnectivity == current {
+            if previousConnectivity == connectivity {
                 return
             }
         }
         
-        self.previousConnectivity = current
+        self.previousConnectivity = connectivity
         
         DispatchQueue.main.async { [weak self] in
-            self?.eventSink?.success(current)
+            self?.eventSink?.success(connectivity)
         }
     }
     
     private func cleanUp() {
         eventSink = nil
         previousConnectivity = nil
+        EcoConnectivityManager.shared.onConnectivityChanged = nil
     }
 }

@@ -86,7 +86,7 @@ class EcoModeImplem: EcoModeApi, EcoModeComponent {
     }
     
     func getConnectivity(completion: @escaping (Result<Connectivity, Error>) -> Void) {
-        completion(.success(Connectivity(type: .unknown)))
+        completion(.success(EcoConnectivityManager.shared.getConnectivity()))
     }
     
     func getTotalStorage() throws -> Int64 {
