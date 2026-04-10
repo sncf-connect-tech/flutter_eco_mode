@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_eco_mode/src/constants.dart';
+
 import 'package:flutter_eco_mode/src/extensions.dart';
 import 'package:flutter_eco_mode/src/flutter_eco_mode_platform_interface.dart';
 import 'package:flutter_eco_mode/src/messages.g.dart';
@@ -29,12 +29,12 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
        _connectivityStream = connectivityStream;
 
   @override
-  Future<String?> getPlatformInfo() async {
+  Future<String> getPlatformInfo() async {
     return await _api.getPlatformInfo();
   }
 
   @override
-  Future<double?> getBatteryLevel() async {
+  Future<double> getBatteryLevel() async {
     return await _api.getBatteryLevel();
   }
 
@@ -54,12 +54,12 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   }
 
   @override
-  Future<int?> getProcessorCount() async {
+  Future<int> getProcessorCount() async {
     return await _api.getProcessorCount();
   }
 
   @override
-  Future<int?> getTotalMemory() async {
+  Future<int> getTotalMemory() async {
     return await _api.getTotalMemory();
   }
 
@@ -79,45 +79,18 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   }
 
   @override
-  Future<DeviceRange?> getDeviceRange() async {
-    return _api
-        .getEcoScore()
-        .then<DeviceRange?>((value) {
-          if (value == null) {
-            throw Exception('Error while getting eco score');
-          }
-          final range = _buildRange(value);
-          return DeviceRange(
-            score: value,
-            range: range,
-            isLowEndDevice: range == DeviceEcoRange.lowEnd,
-          );
-        })
-        .onError((error, stackTrace) {
-          log(stackTrace.toString(), error: error);
-          return null;
-        });
-  }
-
-  DeviceEcoRange _buildRange(double score) {
-    switch (score) {
-      case > minScoreMidRangeDevice:
-        return DeviceEcoRange.highEnd;
-      case > minScoreLowEndDevice:
-        return DeviceEcoRange.midRange;
-      default:
-        return DeviceEcoRange.lowEnd;
-    }
+  Future<DeviceRange> getDeviceRange() async {
+    return _api.getEcoScore().then<DeviceRange>(DeviceRange.new);
   }
 
   @override
-  Future<bool?> isBatteryEcoMode() async {
+  Future<bool> isBatteryEcoMode() async {
     return Future.wait([
           _isNotEnoughBattery(),
           _isBatteryLowPowerMode(),
           _isSeriousAtLeastBatteryState(),
         ])
-        .then<bool?>((List<bool?> value) {
+        .then<bool>((List<bool?> value) {
           if (value.every((element) => element == null)) {
             throw Exception('Error while getting battery eco mode');
           }
@@ -125,14 +98,14 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
         })
         .onError((error, stackTrace) {
           log(stackTrace.toString(), error: error);
-          return null;
+          throw Exception('Error while getting battery eco mode');
         });
   }
 
   Future<bool?> _isNotEnoughBattery() async {
     try {
       return Future.wait([
-        Future<bool?>.value((await getBatteryLevel())?.isNotEnough),
+        Future<bool?>.value((await getBatteryLevel()).isNotEnough),
         Future<bool?>.value((await getBatteryState()).isDischarging),
       ]).then(
         (List<bool?> value) => value.every((bool? element) => element ?? false),
@@ -174,7 +147,7 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
       _batteryStateStream ??= batteryState().asBroadcastStream();
 
   @override
-  Stream<bool?> get isBatteryEcoModeStream =>
+  Stream<bool> get isBatteryEcoModeStream =>
       CombineLatestStream.list([
         _isNotEnoughBatteryStream(),
         lowPowerModeEventStream,

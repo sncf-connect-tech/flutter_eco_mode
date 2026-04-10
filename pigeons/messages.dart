@@ -71,7 +71,7 @@ abstract class EcoModeApi {
 
   int getFreeStorage();
 
-  double? getEcoScore();
+  double getEcoScore();
 
   @async
   Connectivity getConnectivity();

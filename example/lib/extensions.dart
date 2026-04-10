@@ -15,8 +15,7 @@ extension FlutterEcoModeExtension on FlutterEcoMode {
   );
 
   Future<String> getBatteryLevelPercent() => getBatteryLevel().then(
-    (value) =>
-        value != null && value > 0 ? "${value.toInt()} %" : "not reachable",
+    (value) => value > 0 ? "${value.toInt()} %" : "not reachable",
   );
 
   Stream<String> getBatteryLevelPercentStream() => batteryLevelEventStream.map(
