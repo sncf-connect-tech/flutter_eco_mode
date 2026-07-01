@@ -21,7 +21,13 @@ class EcoConnectivityManager {
     static let shared = EcoConnectivityManager()
     
     private let monitor = NWPathMonitor()
-    private var currentPath: NWPath?
+    // Written on the NWPathMonitor background queue and read from other threads (e.g. the main
+    // thread via getConnectivity()), so access is synchronized through observersQueue.
+    private var _currentPath: NWPath?
+    private var currentPath: NWPath? {
+        get { observersQueue.sync { _currentPath } }
+        set { observersQueue.sync { _currentPath = newValue } }
+    }
     
     // CTTelephonyNetworkInfo MUST be created (and used) on the Main Thread to work and receive
     // callbacks. It is created asynchronously when initialization happens off the main thread,
@@ -45,7 +51,10 @@ class EcoConnectivityManager {
         }
     }
     
-    var onConnectivityChanged: ((Connectivity) -> Void)?
+    // Multicast support: multiple independent listeners can register/unregister
+    // without stepping on each other, unlike a single shared closure.
+    private let observersQueue = DispatchQueue(label: "EcoConnectivityObservers")
+    private var observers: [UUID: (Connectivity) -> Void] = [:]
     
     private init() {
         // Never use DispatchQueue.main.sync here: if this singleton is first accessed from a
@@ -64,7 +73,7 @@ class EcoConnectivityManager {
         monitor.pathUpdateHandler = { [weak self] path in
             self?.currentPath = path
             let connectivity = self?.mapPathToConnectivity(path) ?? Connectivity(type: .unknown)
-            self?.onConnectivityChanged?(connectivity)
+            self?.notifyObservers(connectivity)
         }
         let queue = DispatchQueue(label: "EcoConnectivityMonitor")
         monitor.start(queue: queue)
@@ -83,7 +92,36 @@ class EcoConnectivityManager {
             self?.updateMobileConnectivityTypeAsync()
         }
     }
-
+    
+    /// Registers a new observer and returns a token to be used with `removeObserver(_:)`.
+    @discardableResult
+    func addObserver(_ observer: @escaping (Connectivity) -> Void) -> UUID {
+        let token = UUID()
+        observersQueue.sync {
+            observers[token] = observer
+        }
+        return token
+    }
+    
+    /// Unregisters the observer identified by `token`. Only removes this observer,
+    /// leaving every other registered listener untouched.
+    func removeObserver(_ token: UUID) {
+        observersQueue.sync {
+            observers.removeValue(forKey: token)
+        }
+    }
+    
+    private func notifyObservers(_ connectivity: Connectivity) {
+        let currentObservers: [(Connectivity) -> Void] = observersQueue.sync {
+            Array(observers.values)
+        }
+        // Observers (e.g. ConnectivityStateListener) may touch main-thread-only state, so always
+        // notify them on the main thread regardless of which queue triggered this update.
+        DispatchQueue.main.async {
+            currentObservers.forEach { $0(connectivity) }
+        }
+    }
+    
     func getConnectivity() -> Connectivity {
         if let path = currentPath {
             return mapPathToConnectivity(path)
@@ -97,7 +135,7 @@ class EcoConnectivityManager {
             self.currentMobileConnectivityType = self.resolveMobileConnectivityType()
             if let path = self.currentPath {
                 let connectivity = self.mapPathToConnectivity(path)
-                self.onConnectivityChanged?(connectivity)
+                self.notifyObservers(connectivity)
             }
         }
     }
