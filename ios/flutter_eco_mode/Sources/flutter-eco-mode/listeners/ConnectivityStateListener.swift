@@ -11,13 +11,21 @@ import Foundation
 class ConnectivityStateListener: ConnectivityStreamHandler, DisposableStreamListener {
     private var eventSink: PigeonEventSink<Connectivity>?
     private var previousConnectivity: Connectivity?
+    private var observerToken: UUID?
 
     override func onListen(withArguments arguments: Any?, sink: PigeonEventSink<Connectivity>) {
         self.eventSink = sink
         
-        EcoConnectivityManager.shared.onConnectivityChanged = { [weak self] connectivity in
-            self?.sendUpdate(connectivity)
+        // Declared before the closure so it can be captured by reference: the closure only runs
+        // asynchronously (after this method returns), by which point `token` holds its final value.
+        var token: UUID?
+        token = EcoConnectivityManager.shared.addObserver { [weak self] connectivity in
+            // Guard against a pending update from a previous (already cancelled) subscription
+            // being delivered to this new subscription's eventSink.
+            guard let self, self.observerToken == token else { return }
+            self.sendUpdate(connectivity)
         }
+        observerToken = token
         
         // Send initial state
         sendUpdate(EcoConnectivityManager.shared.getConnectivity())
@@ -55,6 +63,9 @@ class ConnectivityStateListener: ConnectivityStreamHandler, DisposableStreamList
     private func cleanUp() {
         eventSink = nil
         previousConnectivity = nil
-        EcoConnectivityManager.shared.onConnectivityChanged = nil
+        if let observerToken {
+            EcoConnectivityManager.shared.removeObserver(observerToken)
+        }
+        observerToken = nil
     }
 }
