@@ -106,8 +106,11 @@ class EcoModeImplem: EcoModeApi, EcoModeComponent {
             }
             return storage
         } catch {
-            print("Error retrieving resource keys: \(error.localizedDescription)")
-            throw error
+            throw PigeonError(
+                code: "STORAGE_ERROR",
+                message: "Error while retrieving total storage: \(error.localizedDescription)",
+                details: nil
+            )
         }
     }
     
@@ -128,8 +131,11 @@ class EcoModeImplem: EcoModeApi, EcoModeComponent {
             }
             return storage
         } catch {
-            print("Error retrieving capacity: \(error.localizedDescription)")
-            throw error
+            throw PigeonError(
+                code: "STORAGE_ERROR",
+                message: "Error while retrieving free storage: \(error.localizedDescription)",
+                details: nil
+            )
         }
     }
     
