@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -30,16 +29,6 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
        _batteryModeStream = batteryModeStream,
        _connectivityStream = connectivityStream;
 
-  /// Runs [call] and converts any [PlatformException] coming from the
-  /// native side into a typed [EcoModeException].
-  Future<T> _guard<T>(Future<T> Function() call) async {
-    try {
-      return await call();
-    } on PlatformException catch (error) {
-      throw error.toEcoModeException();
-    }
-  }
-
   /// Returns a human-readable string describing the current OS/device
   /// (e.g. OS version, device model).
   ///
@@ -49,7 +38,7 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// [PlatformException] if the platform channel itself fails.
   @override
   Future<String> getPlatformInfo() async {
-    return await _api.getPlatformInfo();
+    return await _guard(() => _api.getPlatformInfo());
   }
 
   /// Returns the current battery level of the device.
@@ -60,9 +49,7 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// Exceptions: none expected under normal conditions. May complete with a
   /// [PlatformException] if the platform channel itself fails.
   @override
-  Future<double> getBatteryLevel() async {
-    return await _api.getBatteryLevel();
-  }
+  Future<double> getBatteryLevel() => _guard(() => _api.getBatteryLevel());
 
   /// Checks whether the device's battery saver / low power mode is enabled.
   ///
@@ -71,9 +58,8 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// Exceptions: none expected under normal conditions. May complete with a
   /// [PlatformException] if the platform channel itself fails.
   @override
-  Future<bool> isBatteryInLowPowerMode() async {
-    return await _api.isBatteryInLowPowerMode();
-  }
+  Future<bool> isBatteryInLowPowerMode() =>
+      _guard(() => _api.isBatteryInLowPowerMode());
 
   /// Returns the current charging state of the battery (charging,
   /// discharging, full or unknown).
@@ -83,9 +69,8 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// Exceptions: none expected under normal conditions. May complete with a
   /// [PlatformException] if the platform channel itself fails.
   @override
-  Future<BatteryState> getBatteryState() async {
-    return await _api.getBatteryState();
-  }
+  Future<BatteryState> getBatteryState() =>
+      _guard(() => _api.getBatteryState());
 
   /// Returns the current thermal state of the device (how hot it is
   /// running, and whether performance is being throttled).
@@ -96,7 +81,7 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// [PlatformException] if the platform channel itself fails.
   @override
   Future<ThermalState> getThermalState() async {
-    return await _api.getThermalState();
+    return await _guard(() => _api.getThermalState());
   }
 
   /// Returns the number of processor cores available on the device.
@@ -106,9 +91,7 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// Exceptions: none expected under normal conditions. May complete with a
   /// [PlatformException] if the platform channel itself fails.
   @override
-  Future<int> getProcessorCount() async {
-    return await _api.getProcessorCount();
-  }
+  Future<int> getProcessorCount() => _guard(() => _api.getProcessorCount());
 
   /// Returns the total physical RAM installed on the device.
   ///
@@ -117,9 +100,7 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// Exceptions: none expected under normal conditions. May complete with a
   /// [PlatformException] if the platform channel itself fails.
   @override
-  Future<int> getTotalMemory() async {
-    return await _api.getTotalMemory();
-  }
+  Future<int> getTotalMemory() => _guard(() => _api.getTotalMemory());
 
   /// Returns the amount of RAM currently available/free on the device.
   ///
@@ -128,9 +109,7 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// Exceptions: none expected under normal conditions. May complete with a
   /// [PlatformException] if the platform channel itself fails.
   @override
-  Future<int> getFreeMemory() async {
-    return await _api.getFreeMemory();
-  }
+  Future<int> getFreeMemory() => _guard(() => _api.getFreeMemory());
 
   /// Returns the total disk storage capacity of the device.
   ///
@@ -139,9 +118,7 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// Exceptions: throws [EcoModeStorageException] (code `STORAGE_ERROR`) if
   /// the native platform fails to read the volume capacity.
   @override
-  Future<int> getTotalStorage() async {
-    return _guard(_api.getTotalStorage);
-  }
+  Future<int> getTotalStorage() => _guard(() => _api.getTotalStorage());
 
   /// Returns the amount of disk storage currently available/free on the
   /// device.
@@ -151,9 +128,7 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// Exceptions: throws [EcoModeStorageException] (code `STORAGE_ERROR`) if
   /// the native platform fails to read the volume capacity.
   @override
-  Future<int> getFreeStorage() async {
-    return _guard(_api.getFreeStorage);
-  }
+  Future<int> getFreeStorage() => _guard(() => _api.getFreeStorage());
 
   /// Computes an eco-friendliness score for the device based on its RAM,
   /// processor count and storage capacity, and derives a [DeviceRange] from
@@ -167,8 +142,38 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// compute the score, or [EcoModeGenericException] for any other
   /// unmapped native error.
   @override
-  Future<DeviceRange> getDeviceRange() async {
-    return _guard(() => _api.getEcoScore().then<DeviceRange>(DeviceRange.new));
+  Future<DeviceRange> getDeviceRange() =>
+      _guard(() => _api.getEcoScore().then<DeviceRange>(DeviceRange.new));
+
+  /// Returns a one-shot snapshot of the current network connectivity
+  /// (type and, for Wifi, signal strength).
+  ///
+  /// Returns a [Connectivity] object.
+  ///
+  /// Exceptions: throws [EcoModePermissionException] (code
+  /// `PERMISSION_ERROR`) or [EcoModePermissionDeniedException] (code
+  /// `PERMISSION_DENIED`) on Android if the required phone-state
+  /// permission is missing or access is refused, or
+  /// [EcoModeGenericException] for any other unmapped native error.
+  @override
+  Future<Connectivity> getConnectivity() => _guard(_api.getConnectivity);
+
+  /// Returns whether the current network connectivity is good enough for
+  /// the app to work reliably (based on [Connectivity.isEnough]).
+  ///
+  /// Returns a `bool?`: `true`/`false` when the connectivity could be
+  /// determined, or `null` if it could not be resolved.
+  ///
+  /// Exceptions: none. Any underlying error is caught, logged, and results
+  /// in a `null` return value instead of throwing.
+  @override
+  Future<bool?> hasEnoughNetwork() async {
+    try {
+      final connectivity = await getConnectivity();
+      return connectivity.isEnough;
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Aggregates battery level, discharging state, low power mode and
@@ -183,14 +188,11 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// native calls (battery level, battery state, low power mode, thermal
   /// state) fails, its original error/exception is rethrown as-is.
   @override
-  Future<bool> isBatteryEcoMode() async {
-    final results = await Future.wait([
-      _isNotEnoughBattery(),
-      isBatteryInLowPowerMode(),
-      (getThermalState().then((value) => value.isSeriousAtLeast)),
-    ]);
-    return results.any((element) => element);
-  }
+  Future<bool> isBatteryEcoMode() => Future.wait([
+    _isNotEnoughBattery(),
+    isBatteryInLowPowerMode(),
+    (getThermalState().then((value) => value.isSeriousAtLeast)),
+  ]).then((results) => results.any((element) => element));
 
   /// Returns whether the battery is both below the "not enough" threshold
   /// and currently discharging.
@@ -275,40 +277,6 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   Stream<Connectivity> get connectivityStream =>
       _connectivityStream ??= connectivity().asBroadcastStream();
 
-  /// Returns a one-shot snapshot of the current network connectivity
-  /// (type and, for Wifi, signal strength).
-  ///
-  /// Returns a [Connectivity] object.
-  ///
-  /// Exceptions: throws [EcoModePermissionException] (code
-  /// `PERMISSION_ERROR`) or [EcoModePermissionDeniedException] (code
-  /// `PERMISSION_DENIED`) on Android if the required phone-state
-  /// permission is missing or access is refused, or
-  /// [EcoModeGenericException] for any other unmapped native error.
-  @override
-  Future<Connectivity> getConnectivity() async {
-    return _guard(_api.getConnectivity);
-  }
-
-  /// Returns whether the current network connectivity is good enough for
-  /// the app to work reliably (based on [Connectivity.isEnough]).
-  ///
-  /// Returns a `bool?`: `true`/`false` when the connectivity could be
-  /// determined, or `null` if it could not be resolved.
-  ///
-  /// Exceptions: none. Any underlying error is caught, logged, and results
-  /// in a `null` return value instead of throwing.
-  @override
-  Future<bool?> hasEnoughNetwork() async {
-    try {
-      final connectivity = await getConnectivity();
-      return connectivity.isEnough;
-    } catch (error, stackTrace) {
-      log(stackTrace.toString(), error: error);
-      return null;
-    }
-  }
-
   /// A broadcast stream emitting whether the current network connectivity
   /// is good enough for the app to work reliably, updated whenever
   /// [connectivityStream] emits a new value.
@@ -323,5 +291,15 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
     return connectivityStream
         .map((event) => event.isEnough)
         .asBroadcastStream();
+  }
+
+  /// Runs [call] and converts any [PlatformException] coming from the
+  /// native side into a typed [EcoModeException].
+  Future<T> _guard<T>(Future<T> Function() call) async {
+    try {
+      return await call();
+    } on PlatformException catch (error) {
+      throw error.toEcoModeException();
+    }
   }
 }

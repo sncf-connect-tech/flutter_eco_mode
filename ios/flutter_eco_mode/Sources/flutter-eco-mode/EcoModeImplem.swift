@@ -90,7 +90,6 @@ class EcoModeImplem: EcoModeApi, EcoModeComponent {
     }
     
     func getTotalStorage() throws -> Int64 {
-        var storage: Int64 = 0
         let fileURL: URL
         
         if #available(iOS 16.0, *) {
@@ -100,11 +99,16 @@ class EcoModeImplem: EcoModeApi, EcoModeComponent {
         }
         do {
             let values = try fileURL.resourceValues(forKeys: [.volumeTotalCapacityKey])
-            if let capacity = values.volumeTotalCapacity {
-                storage = Int64(capacity)
-                print("Total Capacity: \(capacity)")
+            guard let capacity = values.volumeTotalCapacity else {
+                throw PigeonError(
+                    code: "STORAGE_ERROR",
+                    message: "Total storage capacity is unavailable for this volume.",
+                    details: nil
+                )
             }
-            return storage
+            return Int64(capacity)
+        } catch let error as PigeonError {
+            throw error
         } catch {
             throw PigeonError(
                 code: "STORAGE_ERROR",
@@ -115,7 +119,6 @@ class EcoModeImplem: EcoModeApi, EcoModeComponent {
     }
     
     func getFreeStorage() throws -> Int64 {
-        var storage: Int64 = 0
         let fileURL: URL
         
         if #available(iOS 16.0, *) {
@@ -125,11 +128,16 @@ class EcoModeImplem: EcoModeApi, EcoModeComponent {
         }
         do {
             let values = try fileURL.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
-            if let capacity = values.volumeAvailableCapacityForImportantUsage {
-                storage = Int64(capacity)
-                print("Avaliable capacity for important usage: \(capacity)")
+            guard let capacity = values.volumeAvailableCapacityForImportantUsage else {
+                throw PigeonError(
+                    code: "STORAGE_ERROR",
+                    message: "Free storage capacity is unavailable for this volume.",
+                    details: nil
+                )
             }
-            return storage
+            return Int64(capacity)
+        } catch let error as PigeonError {
+            throw error
         } catch {
             throw PigeonError(
                 code: "STORAGE_ERROR",
