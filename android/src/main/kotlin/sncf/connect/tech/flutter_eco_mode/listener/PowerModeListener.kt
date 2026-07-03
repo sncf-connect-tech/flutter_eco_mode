@@ -39,8 +39,7 @@ class PowerModeListener(
     override fun dispose(binaryMessenger: BinaryMessenger) {
         cleanUp()
 
-        val channelName = "dev.flutter.pigeon.flutter_eco_mode.EcoModeEventChannel.batteryMode"
-        EventChannel(binaryMessenger, channelName, MessagesPigeonMethodCodec).setStreamHandler(null)
+        EventChannel(binaryMessenger, EcoModeEventChannels.BATTERY_MODE, MessagesPigeonMethodCodec).setStreamHandler(null)
     }
 
     private fun cleanUp() {

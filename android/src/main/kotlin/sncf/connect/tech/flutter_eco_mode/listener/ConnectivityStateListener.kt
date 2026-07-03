@@ -100,8 +100,7 @@ class ConnectivityStateListener(
     override fun dispose(binaryMessenger: BinaryMessenger) {
         cleanUp()
 
-        val channelName = "dev.flutter.pigeon.flutter_eco_mode.EcoModeEventChannel.connectivity"
-        EventChannel(binaryMessenger, channelName, MessagesPigeonMethodCodec).setStreamHandler(null)
+        EventChannel(binaryMessenger, EcoModeEventChannels.CONNECTIVITY, MessagesPigeonMethodCodec).setStreamHandler(null)
     }
 
     private fun sendEvent(
@@ -143,7 +142,7 @@ class ConnectivityStateListener(
             try {
                 connectivityManager.unregisterNetworkCallback(it)
             } catch (e: Exception) {
-                Log.e(TAG, "Erreur lors du unregisterNetworkCallback", e)
+                Log.e(TAG, "Error while unregistering the network callback", e)
             }
         }
 
@@ -151,7 +150,7 @@ class ConnectivityStateListener(
             try {
                 context.unregisterReceiver(it)
             } catch (e: Exception) {
-                Log.e(TAG, "Erreur lors du unregisterReceiver", e)
+                Log.e(TAG, "Error while unregistering the connectivity receiver", e)
             }
         }
 

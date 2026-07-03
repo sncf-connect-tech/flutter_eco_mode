@@ -3,6 +3,7 @@ package sncf.connect.tech.flutter_eco_mode
 import android.app.ActivityManager
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
 import android.os.Build
 import android.os.Environment
 import android.os.PowerManager
@@ -81,7 +82,6 @@ class EcoModeImplem(
         return ThermalState.UNKNOWN
     }
 
-    // TODO: rename in getAvailableProcessorsCount() to be more explicit
     override fun getProcessorCount(): Long {
         return Runtime.getRuntime().availableProcessors().toLong()
     }
@@ -142,48 +142,54 @@ class EcoModeImplem(
 
     override fun getConnectivity(callback: (Result<Connectivity>) -> Unit) {
         pluginScope.launch {
-            if (permissionHandler.hasReadPhoneStatePermission()) {
-                val result = withContext(Dispatchers.IO) {
-                    val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
-                    val network = connectivityManager.activeNetwork
-                    val telephonyManager = context.getSystemService(TelephonyManager::class.java)
-                    val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+            val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
+            val networkCapabilities = withContext(Dispatchers.IO) {
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            }
 
-                    try {
-                        val connectivity = Connectivity(
-                            type = getNetworkType(
-                                networkCapabilities = networkCapabilities,
-                                telephonyManager = telephonyManager
-                            ),
-                            wifiSignalStrength = networkCapabilities?.getWifiSignalStrength(context)
-                        )
-
-                        Result.success(connectivity)
-
-                    } catch (e: SecurityException) {
-                        Result.failure(
-                            FlutterError(
-                                code = "PERMISSION_ERROR",
-                                message = "Error while accessing network type: ${e.message}",
-                                details = null
-                            )
-                        )
-                    }
-                }
-
-                callback(result)
-
-            } else {
+            // Reading the precise cellular network type requires the phone-state
+            // permission, but Wifi/Ethernet/no-network don't need it at all: only
+            // gate on the permission when the active network is actually cellular.
+            val isCellular = networkCapabilities?.hasTransport(TRANSPORT_CELLULAR) == true
+            if (isCellular && !permissionHandler.hasReadPhoneStatePermission()) {
                 callback(
                     Result.failure(
-                    FlutterError(
+                        FlutterError(
                             code = "PERMISSION_DENIED",
                             message = "READ_BASIC_PHONE_STATE permission denied. Cannot access cellular network type.",
                             details = null
                         )
                     )
                 )
+                return@launch
             }
+
+            val result = withContext(Dispatchers.IO) {
+                val telephonyManager = context.getSystemService(TelephonyManager::class.java)
+
+                try {
+                    val connectivity = Connectivity(
+                        type = getNetworkType(
+                            networkCapabilities = networkCapabilities,
+                            telephonyManager = telephonyManager
+                        ),
+                        wifiSignalStrength = networkCapabilities?.getWifiSignalStrength(context)
+                    )
+
+                    Result.success(connectivity)
+
+                } catch (e: SecurityException) {
+                    Result.failure(
+                        FlutterError(
+                            code = "PERMISSION_ERROR",
+                            message = "Error while accessing network type: ${e.message}",
+                            details = null
+                        )
+                    )
+                }
+            }
+
+            callback(result)
         }
     }
 
