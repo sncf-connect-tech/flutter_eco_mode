@@ -100,17 +100,33 @@ class EcoModeImplem(
     }
 
     override fun getTotalStorage(): Long {
-        val statFs = StatFs(Environment.getDataDirectory().absolutePath)
-        val blockSizeLong = statFs.blockSizeLong
-        val totalBlocksLong = statFs.blockCountLong
-        return blockSizeLong * totalBlocksLong
+        try {
+            val statFs = StatFs(Environment.getDataDirectory().absolutePath)
+            val blockSizeLong = statFs.blockSizeLong
+            val totalBlocksLong = statFs.blockCountLong
+            return blockSizeLong * totalBlocksLong
+        } catch (e: IllegalArgumentException) {
+            throw FlutterError(
+                code = "STORAGE_ERROR",
+                message = "Error while retrieving total storage: ${e.message}",
+                details = null
+            )
+        }
     }
 
     override fun getFreeStorage(): Long {
-        val statFs = StatFs(Environment.getDataDirectory().absolutePath)
-        val blockSizeLong = statFs.blockSizeLong
-        val availableBlocksLong = statFs.availableBlocksLong
-        return blockSizeLong * availableBlocksLong
+        try {
+            val statFs = StatFs(Environment.getDataDirectory().absolutePath)
+            val blockSizeLong = statFs.blockSizeLong
+            val availableBlocksLong = statFs.availableBlocksLong
+            return blockSizeLong * availableBlocksLong
+        } catch (e: IllegalArgumentException) {
+            throw FlutterError(
+                code = "STORAGE_ERROR",
+                message = "Error while retrieving free storage: ${e.message}",
+                details = null
+            )
+        }
     }
 
     override fun getEcoScore(): Double {
