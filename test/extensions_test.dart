@@ -1,7 +1,8 @@
+import 'package:flutter_test/flutter_test.dart';
+
 import 'package:flutter_eco_mode/src/constants.dart';
 import 'package:flutter_eco_mode/src/extensions.dart';
 import 'package:flutter_eco_mode/src/messages.g.dart';
-import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('BatteryLevelExtensions', () {
@@ -80,9 +81,9 @@ void main() {
 
   group('ConnectivityExtensions', () {
     group('isEnough', () {
-      test('should return null when connectivity type is unknown', () {
+      test('should return false when connectivity type is unknown', () {
         final connectivity = Connectivity(type: ConnectivityType.unknown);
-        expect(connectivity.isEnough, null);
+        expect(connectivity.isEnough, false);
       });
 
       test('should return true when connectivity type is ethernet', () {

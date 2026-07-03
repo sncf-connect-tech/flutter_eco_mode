@@ -43,8 +43,15 @@ class PermissionHandler : RequestPermissionsResultListener {
             } else {
                 // Multiple concurrent callers share the same in-flight system
                 // request instead of overwriting/losing each other's callback.
+                val callback: (Boolean) -> Unit = { continuation.resume(it) }
                 val pending = callbacks.getOrPut(NETWORK_STATE_REQUEST_CODE) { mutableListOf() }
-                pending.add { continuation.resume(it) }
+                pending.add(callback)
+                // If the coroutine is cancelled before the system delivers the result,
+                // remove the callback to avoid a memory leak and a resume-on-cancelled
+                // continuation attempt.
+                continuation.invokeOnCancellation {
+                    callbacks[NETWORK_STATE_REQUEST_CODE]?.remove(callback)
+                }
                 if (pending.size == 1) {
                     ActivityCompat.requestPermissions(activity, arrayOf(ACCESS_NETWORK_STATE), NETWORK_STATE_REQUEST_CODE)
                 }
@@ -60,8 +67,12 @@ class PermissionHandler : RequestPermissionsResultListener {
                 val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     READ_BASIC_PHONE_STATE else READ_PHONE_STATE
 
+                val callback: (Boolean) -> Unit = { continuation.resume(it) }
                 val pending = callbacks.getOrPut(READ_PHONE_REQUEST_CODE) { mutableListOf() }
-                pending.add { continuation.resume(it) }
+                pending.add(callback)
+                continuation.invokeOnCancellation {
+                    callbacks[READ_PHONE_REQUEST_CODE]?.remove(callback)
+                }
                 if (pending.size == 1) {
                     ActivityCompat.requestPermissions(activity, arrayOf(permission), READ_PHONE_REQUEST_CODE)
                 }

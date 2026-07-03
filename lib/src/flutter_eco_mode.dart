@@ -162,13 +162,13 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// Returns whether the current network connectivity is good enough for
   /// the app to work reliably (based on [Connectivity.isEnough]).
   ///
-  /// Returns a `bool?`: `true`/`false` when the connectivity could be
-  /// determined, or `null` if it could not be resolved.
+  /// Returns a `bool`: `true` if the network is considered sufficient,
+  /// `false` if it is not or if the connectivity state is unknown.
   ///
   /// Exceptions: this is a pure pass-through. If [getConnectivity] throws,
   /// its original error/exception is rethrown as-is.
   @override
-  Future<bool?> hasEnoughNetwork() =>
+  Future<bool> hasEnoughNetwork() =>
       getConnectivity().then((connectivity) => connectivity.isEnough);
 
   /// Aggregates battery level, discharging state, low power mode and
@@ -250,15 +250,24 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   Stream<bool> get isBatteryEcoModeStream =>
       Rx.combineLatest2(
         _isNotEnoughBatteryStream(),
-        lowPowerModeEventStream,
+        Rx.concat([
+          Stream.fromFuture(isBatteryInLowPowerMode()),
+          lowPowerModeEventStream,
+        ]),
         (isNotEnoughBattery, isLowPowerMode) =>
             isNotEnoughBattery || isLowPowerMode,
       ).asBroadcastStream();
 
   Stream<bool> _isNotEnoughBatteryStream() =>
       Rx.combineLatest2(
-        batteryLevelEventStream.map((event) => event.isNotEnough),
-        batteryStateEventStream.map((event) => event.isDischarging),
+        Rx.concat([
+          Stream.fromFuture(getBatteryLevel()),
+          batteryLevelEventStream,
+        ]).map((event) => event.isNotEnough),
+        Rx.concat([
+          Stream.fromFuture(getBatteryState()),
+          batteryStateEventStream,
+        ]).map((event) => event.isDischarging),
         (isNotEnough, isDischarging) => isNotEnough && isDischarging,
       ).asBroadcastStream();
 
@@ -282,9 +291,9 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// could not be resolved.
   ///
   /// Exceptions: none expected; unresolvable states are represented as
-  /// `null` values rather than stream errors.
+  /// `false` values rather than stream errors.
   @override
-  Stream<bool?> hasEnoughNetworkStream() {
+  Stream<bool> hasEnoughNetworkStream() {
     return connectivityStream
         .map((event) => event.isEnough)
         .asBroadcastStream();
