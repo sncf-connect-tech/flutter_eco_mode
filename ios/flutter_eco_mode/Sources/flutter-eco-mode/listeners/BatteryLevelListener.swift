@@ -39,8 +39,7 @@ class BatteryLevelListener: BatteryLevelStreamHandler, DisposableStreamListener 
     func dispose(binaryMessenger: FlutterBinaryMessenger) {
         cleanUp()
         
-        let channelName = "dev.flutter.pigeon.flutter_eco_mode.EcoModeEventChannel.batteryLevel"
-        FlutterEventChannel(name: channelName, binaryMessenger: binaryMessenger, codec: messagesPigeonMethodCodec).setStreamHandler(nil)
+        FlutterEventChannel(name: EcoModeEventChannels.batteryLevel, binaryMessenger: binaryMessenger, codec: messagesPigeonMethodCodec).setStreamHandler(nil)
     }
     
     // MARK: - Private methods

@@ -25,7 +25,6 @@ class EcoModeImplem: EcoModeApi, EcoModeComponent {
     var connectivityListener: DisposableStreamListener { _connectivityStateListener }
     
     func getEcoScore() throws -> Double {
-        //TODO vérifier l'OS, si en dessous de iphone 8 score --
         let nbrParams = 3
         var score = nbrParams
         
@@ -37,13 +36,13 @@ class EcoModeImplem: EcoModeApi, EcoModeComponent {
         if (processorcount <= processorCountMinimumThreshold) {  score = score - 1 }
         if (totalStorage <= totalStorageMinimumThreshold) {  score = score - 1 }
             
-        return Double(score / nbrParams)
+        return Double(score) / Double(nbrParams)
     }
     
     // MARK: - EcoModeApi implementation
     
     func getPlatformInfo() throws -> String {
-        return "\(UIDevice.current.systemVersion) -!- \(UIDevice.current)"
+        return "iOS - \(UIDevice.current.systemVersion) - \(UIDevice.current.model) - \(UIDevice.current.name)"
     }
     
     func getBatteryLevel() throws -> Double {

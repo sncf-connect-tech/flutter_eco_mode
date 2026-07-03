@@ -39,8 +39,7 @@ class PowerModeListener: BatteryModeStreamHandler, DisposableStreamListener {
     func dispose(binaryMessenger: FlutterBinaryMessenger) {
         cleanUp()
         
-        let channelName = "dev.flutter.pigeon.flutter_eco_mode.EcoModeEventChannel.batteryMode"
-        FlutterEventChannel(name: channelName, binaryMessenger: binaryMessenger, codec: messagesPigeonMethodCodec).setStreamHandler(nil)
+        FlutterEventChannel(name: EcoModeEventChannels.batteryMode, binaryMessenger: binaryMessenger, codec: messagesPigeonMethodCodec).setStreamHandler(nil)
     }
     
     // MARK: - Private methods
