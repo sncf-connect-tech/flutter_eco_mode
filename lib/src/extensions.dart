@@ -15,12 +15,11 @@ extension ThermalStateExtensions on ThermalState {
 }
 
 extension ConnectivityExtensions on Connectivity {
-  bool? get isEnough =>
-      type == ConnectivityType.unknown
-          ? null
-          : (_isMobileEnoughNetwork ||
-              _isWifiEnoughNetwork ||
-              type == ConnectivityType.ethernet);
+  bool get isEnough =>
+      type != ConnectivityType.unknown &&
+      (_isMobileEnoughNetwork ||
+          _isWifiEnoughNetwork ||
+          type == ConnectivityType.ethernet);
 
   bool get _isMobileEnoughNetwork => [
     ConnectivityType.mobile5g,

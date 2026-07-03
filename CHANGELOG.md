@@ -1,4 +1,27 @@
+# 1.0.0
+
+> First stable release: connectivity state on iOS, safer error handling and internal cleanup
+
+- **FEAT**: Implement connectivity state (network type, Wifi signal strength) on iOS.
+- **FEAT**: Support multiple active listeners for connectivity events on iOS.
+- **FEAT**: Migrate iOS side to Swift Package Manager.
+- **FIX**: Change plugin interface to remove nullable return values.
+- **FIX**: Better error handling — `PlatformException`s are now consistently converted into typed `EcoModeException`s across the API.
+- **FIX**: `EcoModeException` and its subclasses no longer extend `PlatformException`; they are now standalone, sealed exception types (`code`/`message`/`details`) for a clearer, non-ambiguous error contract.
+- **FIX**: `hasEnoughNetwork()` now rethrows native errors instead of silently returning `null`, for consistency with the rest of the API.
+- **FIX**: Fix deadlock issue on iOS event channels.
+- **FIX**: Simplify event channels implementation using Pigeon.
+- **FIX** (iOS): Fix `getEcoScore()` computing an integer division, which made `DeviceRange.midRange` unreachable (score could only be `0.0` or `1.0`).
+- **FIX** (iOS): Fix `getPlatformInfo()` returning the object's memory address (`UIDevice.current` description) instead of the device model/name.
+- **FIX** (Android): `getConnectivity()` no longer requires the phone-state permission for Wifi/Ethernet/no-network connectivity, only for cellular network type detection.
+- **FIX** (Android): `PermissionHandler.onRequestPermissionsResult` now correctly reports that the permission result was handled, and concurrent permission requests no longer leave a coroutine stuck forever.
+- **CHORE**: Replace the hand-rolled `CombineLatestStream` implementation with the `rxdart` package.
+- **CHORE**: Centralize native event channel names (Android/iOS) instead of duplicating them across each stream listener.
+- **CHORE**: Add CI job for Android build and tests, upgrade AGP.
+- **CHORE**: Add lefthook pre-commit hooks.
+
 ## 0.1.0
+
 
 > Add feature connectivity for Android devices
 

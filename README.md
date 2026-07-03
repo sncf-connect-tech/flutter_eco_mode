@@ -72,16 +72,22 @@ It will return a boolean.
 
 ```dart
 @override
-  Stream<bool?> get isBatteryEcoModeStream => CombineLatestStream.list([
-        _isNotEnoughBatteryStream(),
-        lowPowerModeEventStream.withInitialValue(isBatteryInLowPowerMode()),
-      ]).map((event) => event.any((element) => element)).asBroadcastStream();
+Stream<bool> get isBatteryEcoModeStream =>
+    Rx.combineLatest2(
+      _isNotEnoughBatteryStream(),
+      lowPowerModeEventStream,
+      (isNotEnoughBattery, isLowPowerMode) =>
+          isNotEnoughBattery || isLowPowerMode,
+    ).asBroadcastStream();
 
-  Stream<bool> _isNotEnoughBatteryStream() => CombineLatestStream.list([
-        batteryLevelEventStream.map((event) => event.isNotEnough),
-        batteryStateEventStream.map((event) => event.isDischarging),
-      ]).map((event) => event.every((element) => element)).asBroadcastStream();
+Stream<bool> _isNotEnoughBatteryStream() =>
+    Rx.combineLatest2(
+      batteryLevelEventStream.map((event) => event.isNotEnough),
+      batteryStateEventStream.map((event) => event.isDischarging),
+      (isNotEnough, isDischarging) => isNotEnough && isDischarging,
+    ).asBroadcastStream();
 ``` 
+
 
 ## Connectivity
 
@@ -118,6 +124,27 @@ Probably the better thing to do is to make your own speed test in your app.
 You're right, it's more precise, and you can directly define what is a good network fo your purposes.
 But you need to ping a server, and it's not really eco-friendly. 
 Here we just use the native access, trust directly your device and OS.
+
+## Error handling
+
+Every method of the plugin can fail if the native side (iOS/Android) encounters an error. In that case, the
+`Future`/`Stream` completes with a typed `EcoModeException` instead of a generic `PlatformException`:
+
+- `EcoModePermissionException`: a permission-related native operation failed unexpectedly.
+- `EcoModePermissionDeniedException`: a required runtime permission was denied or not requested.
+- `EcoModeActivityNotAttachedException` (Android only): the plugin isn't currently attached to an `Activity`.
+- `EcoModeStorageException`: the native platform failed to read storage information.
+- `EcoModeGenericException`: any other unmapped native error.
+
+```dart
+try {
+  final connectivity = await FlutterEcoMode.instance.getConnectivity();
+} on EcoModePermissionDeniedException catch (e) {
+  // handle the missing permission
+} on EcoModeException catch (e) {
+  // handle any other typed error
+}
+```
 
 ## Example
 

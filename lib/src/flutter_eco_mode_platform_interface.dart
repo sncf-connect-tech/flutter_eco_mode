@@ -81,10 +81,10 @@ abstract class FlutterEcoModePlatform extends PlatformInterface {
   Future<Connectivity> getConnectivity();
 
   /// Return a boolean which represents if the network is good enough.
-  Future<bool?> hasEnoughNetwork();
+  Future<bool> hasEnoughNetwork();
 
   /// Stream a boolean which represents if the network is good enough.
-  Stream<bool?> hasEnoughNetworkStream();
+  Stream<bool> hasEnoughNetworkStream();
 }
 
 class DeviceRange {

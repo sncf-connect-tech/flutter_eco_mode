@@ -33,7 +33,7 @@ jobs:
         run: flutter test ./test/* --coverage
 
       - name: Exclude coverage
-        run: lcov --remove coverage/lcov.info 'lib/src/flutter_eco_mode_platform_interface.dart' 'lib/src/messages.g.dart' 'lib/src/streams/*' -o coverage/lcov.info
+        run: lcov --remove coverage/lcov.info 'lib/src/flutter_eco_mode_platform_interface.dart' 'lib/src/messages.g.dart' -o coverage/lcov.info
 
       - name: Upload coverage report as artifact
         uses: actions/upload-artifact@v4

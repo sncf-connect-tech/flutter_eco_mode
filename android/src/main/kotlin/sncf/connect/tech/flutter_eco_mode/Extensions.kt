@@ -9,10 +9,6 @@ import android.net.NetworkCapabilities.TRANSPORT_ETHERNET
 import android.net.NetworkCapabilities.TRANSPORT_WIFI
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
-import android.os.BatteryManager.BATTERY_STATUS_CHARGING
-import android.os.BatteryManager.BATTERY_STATUS_DISCHARGING
-import android.os.BatteryManager.BATTERY_STATUS_FULL
-import android.os.BatteryManager.BATTERY_STATUS_NOT_CHARGING
 import android.os.Build
 import android.os.PowerManager.THERMAL_STATUS_CRITICAL
 import android.os.PowerManager.THERMAL_STATUS_EMERGENCY
@@ -115,13 +111,6 @@ fun NetworkCapabilities.getWifiSignalStrength(context: Context): Long? {
             }
         }
     }
-}
-
-fun Int.toBatteryState(): BatteryState = when (this) {
-    BATTERY_STATUS_CHARGING -> BatteryState.CHARGING
-    BATTERY_STATUS_FULL -> BatteryState.FULL
-    BATTERY_STATUS_DISCHARGING, BATTERY_STATUS_NOT_CHARGING -> BatteryState.DISCHARGING
-    else -> BatteryState.UNKNOWN
 }
 
 fun Int.toThermalState(): ThermalState = when (this) {

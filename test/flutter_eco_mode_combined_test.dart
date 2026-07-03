@@ -1,10 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+
 import 'package:flutter_eco_mode/src/constants.dart';
 import 'package:flutter_eco_mode/src/flutter_eco_mode.dart';
 import 'package:flutter_eco_mode/src/messages.g.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 
 class MockEcoModeApi extends Mock implements EcoModeApi {}
 
@@ -23,6 +24,10 @@ void main() {
 
   setUp(() {
     ecoModeApi = MockEcoModeApi();
+    when(() => ecoModeApi.getBatteryLevel()).thenAnswer((_) async => 100.0);
+    when(
+      () => ecoModeApi.getBatteryState(),
+    ).thenAnswer((_) async => BatteryState.charging);
     when(
       () => ecoModeApi.isBatteryInLowPowerMode(),
     ).thenAnswer((_) async => false);
@@ -110,6 +115,10 @@ void main() {
           results.add(event);
         });
 
+        // Wait for the initial-value futures (Rx.concat seeds) to resolve and
+        // for Rx.concat to subscribe to the broadcast event streams.
+        await Future.delayed(Duration.zero);
+
         // Start with high battery
         batteryLevelStreamController.add(100.0);
         batteryStateStreamController.add(BatteryState.discharging);
@@ -133,6 +142,9 @@ void main() {
         ecoMode.isBatteryEcoModeStream.listen((event) {
           results.add(event);
         });
+
+        // Wait for the initial-value futures (Rx.concat seeds) to resolve.
+        await Future.delayed(Duration.zero);
 
         // Start with low battery but charging (should be false)
         batteryLevelStreamController.add(minEnoughBattery - 1);

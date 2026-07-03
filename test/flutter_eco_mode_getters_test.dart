@@ -598,15 +598,17 @@ void main() {
         expect(result, false);
       });
 
-      test('should return null when API throws error', () async {
+      test('should rethrow when API throws error', () async {
         when(
           () => ecoModeApi.getConnectivity(),
         ).thenThrow(Exception('API error'));
 
         final ecoMode = buildEcoMode();
-        final result = await ecoMode.hasEnoughNetwork();
 
-        expect(result, null);
+        await expectLater(
+          ecoMode.hasEnoughNetwork(),
+          throwsA(isA<Exception>()),
+        );
       });
 
       test('should return true at minimum WiFi signal threshold', () async {
@@ -627,7 +629,7 @@ void main() {
     group('hasEnoughNetworkStream method', () {
       test('should emit true when WiFi signal is strong', () async {
         final ecoMode = buildEcoMode();
-        final results = <bool?>[];
+        final results = <bool>[];
 
         ecoMode.hasEnoughNetworkStream().listen((event) {
           results.add(event);
@@ -647,7 +649,7 @@ void main() {
 
       test('should emit false when WiFi signal is weak', () async {
         final ecoMode = buildEcoMode();
-        final results = <bool?>[];
+        final results = <bool>[];
 
         ecoMode.hasEnoughNetworkStream().listen((event) {
           results.add(event);
@@ -667,7 +669,7 @@ void main() {
 
       test('should emit multiple values on connectivity changes', () async {
         final ecoMode = buildEcoMode();
-        final results = <bool?>[];
+        final results = <bool>[];
 
         ecoMode.hasEnoughNetworkStream().listen((event) {
           results.add(event);
@@ -696,8 +698,8 @@ void main() {
 
       test('should be broadcast stream', () async {
         final ecoMode = buildEcoMode();
-        final results1 = <bool?>[];
-        final results2 = <bool?>[];
+        final results1 = <bool>[];
+        final results2 = <bool>[];
 
         ecoMode.hasEnoughNetworkStream().listen((event) {
           results1.add(event);
@@ -722,7 +724,7 @@ void main() {
 
       test('should emit false when no connectivity', () async {
         final ecoMode = buildEcoMode();
-        final results = <bool?>[];
+        final results = <bool>[];
 
         ecoMode.hasEnoughNetworkStream().listen((event) {
           results.add(event);

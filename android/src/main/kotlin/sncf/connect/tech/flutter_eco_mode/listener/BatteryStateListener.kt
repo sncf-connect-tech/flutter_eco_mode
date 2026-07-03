@@ -41,8 +41,7 @@ class BatteryStateListener(
     override fun dispose(binaryMessenger: BinaryMessenger) {
         cleanUp()
 
-        val channelName = "dev.flutter.pigeon.flutter_eco_mode.EcoModeEventChannel.batteryState"
-        EventChannel(binaryMessenger, channelName, MessagesPigeonMethodCodec).setStreamHandler(null)
+        EventChannel(binaryMessenger, EcoModeEventChannels.BATTERY_STATE, MessagesPigeonMethodCodec).setStreamHandler(null)
     }
 
     private fun cleanUp() {

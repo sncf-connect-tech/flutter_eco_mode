@@ -13,7 +13,7 @@ import kotlin.coroutines.resume
 
 class PermissionHandler : RequestPermissionsResultListener {
     var activity: Activity? = null
-    private val callbacks = mutableMapOf<Int, (Boolean) -> Unit>()
+    private val callbacks = mutableMapOf<Int, MutableList<(Boolean) -> Unit>>()
 
     companion object {
         const val READ_PHONE_REQUEST_CODE = 1006
@@ -41,8 +41,20 @@ class PermissionHandler : RequestPermissionsResultListener {
             if (hasNetworkStatePermission()) {
                 continuation.resume(true)
             } else {
-                callbacks[NETWORK_STATE_REQUEST_CODE] = { continuation.resume(it) }
-                ActivityCompat.requestPermissions(activity, arrayOf(ACCESS_NETWORK_STATE), NETWORK_STATE_REQUEST_CODE)
+                // Multiple concurrent callers share the same in-flight system
+                // request instead of overwriting/losing each other's callback.
+                val callback: (Boolean) -> Unit = { continuation.resume(it) }
+                val pending = callbacks.getOrPut(NETWORK_STATE_REQUEST_CODE) { mutableListOf() }
+                pending.add(callback)
+                // If the coroutine is cancelled before the system delivers the result,
+                // remove the callback to avoid a memory leak and a resume-on-cancelled
+                // continuation attempt.
+                continuation.invokeOnCancellation {
+                    callbacks[NETWORK_STATE_REQUEST_CODE]?.remove(callback)
+                }
+                if (pending.size == 1) {
+                    ActivityCompat.requestPermissions(activity, arrayOf(ACCESS_NETWORK_STATE), NETWORK_STATE_REQUEST_CODE)
+                }
             }
         }
     }
@@ -55,8 +67,15 @@ class PermissionHandler : RequestPermissionsResultListener {
                 val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     READ_BASIC_PHONE_STATE else READ_PHONE_STATE
 
-                callbacks[READ_PHONE_REQUEST_CODE] = { continuation.resume(it) }
-                ActivityCompat.requestPermissions(activity, arrayOf(permission), READ_PHONE_REQUEST_CODE)
+                val callback: (Boolean) -> Unit = { continuation.resume(it) }
+                val pending = callbacks.getOrPut(READ_PHONE_REQUEST_CODE) { mutableListOf() }
+                pending.add(callback)
+                continuation.invokeOnCancellation {
+                    callbacks[READ_PHONE_REQUEST_CODE]?.remove(callback)
+                }
+                if (pending.size == 1) {
+                    ActivityCompat.requestPermissions(activity, arrayOf(permission), READ_PHONE_REQUEST_CODE)
+                }
             }
         }
     }
@@ -64,9 +83,10 @@ class PermissionHandler : RequestPermissionsResultListener {
     // -------- Utils --------
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray): Boolean {
+        val pending = callbacks.remove(requestCode) ?: return false
         val allGranted = grantResults.isNotEmpty() && grantResults.all { it == PERMISSION_GRANTED }
-        callbacks.remove(requestCode)?.invoke(allGranted)
-        return callbacks.containsKey(requestCode) // Retourne true si on a géré ce code
+        pending.forEach { it(allGranted) }
+        return true // We handled this request code.
     }
 
     private fun withActivity(block: (Activity) -> Unit) {

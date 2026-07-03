@@ -13,7 +13,6 @@ void main() {
       expect(exception.message, 'permission error');
       expect(exception.details, isNull);
       expect(exception, isA<EcoModeException>());
-      expect(exception, isA<PlatformException>());
     });
 
     test('EcoModePermissionDeniedException has the expected code', () {
@@ -52,6 +51,18 @@ void main() {
       expect(exception.code, 'GENERIC_ERROR');
       expect(exception.message, 'unknown error');
       expect(exception, isA<EcoModeException>());
+    });
+
+    test('toString returns the expected format', () {
+      final exception = EcoModeStorageException(
+        message: 'storage error',
+        details: {'path': '/data'},
+      );
+
+      expect(
+        exception.toString(),
+        'EcoModeException(STORAGE_ERROR, storage error, {path: /data})',
+      );
     });
   });
 
