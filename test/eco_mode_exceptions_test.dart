@@ -13,7 +13,6 @@ void main() {
       expect(exception.message, 'permission error');
       expect(exception.details, isNull);
       expect(exception, isA<EcoModeException>());
-      expect(exception, isA<PlatformException>());
     });
 
     test('EcoModePermissionDeniedException has the expected code', () {

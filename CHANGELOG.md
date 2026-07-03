@@ -1,4 +1,22 @@
+# 1.0.0
+
+> First stable release: connectivity state on iOS, safer error handling and internal cleanup
+
+- **FEAT**: Implement connectivity state (network type, Wifi signal strength) on iOS.
+- **FEAT**: Support multiple active listeners for connectivity events on iOS.
+- **FEAT**: Migrate iOS side to Swift Package Manager.
+- **FIX**: Change plugin interface to remove nullable return values.
+- **FIX**: Better error handling — `PlatformException`s are now consistently converted into typed `EcoModeException`s across the API.
+- **FIX**: `EcoModeException` and its subclasses no longer extend `PlatformException`; they are now standalone, sealed exception types (`code`/`message`/`details`) for a clearer, non-ambiguous error contract.
+- **FIX**: `hasEnoughNetwork()` now rethrows native errors instead of silently returning `null`, for consistency with the rest of the API.
+- **FIX**: Fix deadlock issue on iOS event channels.
+- **FIX**: Simplify event channels implementation using Pigeon.
+- **CHORE**: Replace the hand-rolled `CombineLatestStream` implementation with the `rxdart` package.
+- **CHORE**: Add CI job for Android build and tests, upgrade AGP.
+- **CHORE**: Add lefthook pre-commit hooks.
+
 ## 0.1.0
+
 
 > Add feature connectivity for Android devices
 

@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import 'package:rxdart/rxdart.dart';
+
 import 'package:flutter_eco_mode/src/eco_mode_exceptions.dart';
 import 'package:flutter_eco_mode/src/extensions.dart';
 import 'package:flutter_eco_mode/src/flutter_eco_mode_platform_interface.dart';
 import 'package:flutter_eco_mode/src/messages.g.dart';
-import 'package:flutter_eco_mode/src/streams/combine_latest.dart';
 
 /// An implementation of [FlutterEcoModePlatform] that uses pigeon.
 class FlutterEcoMode extends FlutterEcoModePlatform {
@@ -164,17 +165,11 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// Returns a `bool?`: `true`/`false` when the connectivity could be
   /// determined, or `null` if it could not be resolved.
   ///
-  /// Exceptions: none. Any underlying error is caught, logged, and results
-  /// in a `null` return value instead of throwing.
+  /// Exceptions: this is a pure pass-through. If [getConnectivity] throws,
+  /// its original error/exception is rethrown as-is.
   @override
-  Future<bool?> hasEnoughNetwork() async {
-    try {
-      final connectivity = await getConnectivity();
-      return connectivity.isEnough;
-    } catch (_) {
-      return null;
-    }
-  }
+  Future<bool?> hasEnoughNetwork() =>
+      getConnectivity().then((connectivity) => connectivity.isEnough);
 
   /// Aggregates battery level, discharging state, low power mode and
   /// thermal state to determine whether the app should switch to an
@@ -201,11 +196,10 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   ///
   /// Exceptions: propagates whatever error [getBatteryLevel] or
   /// [getBatteryState] throws, unmodified.
-  Future<bool> _isNotEnoughBattery() async {
-    final level = await getBatteryLevel();
-    final state = await getBatteryState();
-    return level.isNotEnough && state.isDischarging;
-  }
+  Future<bool> _isNotEnoughBattery() => Future.wait([
+    getBatteryLevel().then((value) => value.isNotEnough),
+    getBatteryState().then((value) => value.isDischarging),
+  ]).then((results) => results.every((element) => element));
 
   /// A broadcast stream emitting `true`/`false` whenever the device's low
   /// power mode is toggled.
@@ -254,16 +248,19 @@ class FlutterEcoMode extends FlutterEcoModePlatform {
   /// `onError`/`catchError`.
   @override
   Stream<bool> get isBatteryEcoModeStream =>
-      CombineLatestStream.list([
+      Rx.combineLatest2(
         _isNotEnoughBatteryStream(),
         lowPowerModeEventStream,
-      ]).map((event) => event.any((element) => element)).asBroadcastStream();
+        (isNotEnoughBattery, isLowPowerMode) =>
+            isNotEnoughBattery || isLowPowerMode,
+      ).asBroadcastStream();
 
   Stream<bool> _isNotEnoughBatteryStream() =>
-      CombineLatestStream.list([
+      Rx.combineLatest2(
         batteryLevelEventStream.map((event) => event.isNotEnough),
         batteryStateEventStream.map((event) => event.isDischarging),
-      ]).map((event) => event.every((element) => element)).asBroadcastStream();
+        (isNotEnough, isDischarging) => isNotEnough && isDischarging,
+      ).asBroadcastStream();
 
   /// A broadcast stream emitting the current [Connectivity] (network type
   /// and, for Wifi, signal strength) whenever it changes.

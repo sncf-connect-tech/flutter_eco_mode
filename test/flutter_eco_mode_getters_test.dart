@@ -598,15 +598,17 @@ void main() {
         expect(result, false);
       });
 
-      test('should return null when API throws error', () async {
+      test('should rethrow when API throws error', () async {
         when(
           () => ecoModeApi.getConnectivity(),
         ).thenThrow(Exception('API error'));
 
         final ecoMode = buildEcoMode();
-        final result = await ecoMode.hasEnoughNetwork();
 
-        expect(result, null);
+        await expectLater(
+          ecoMode.hasEnoughNetwork(),
+          throwsA(isA<Exception>()),
+        );
       });
 
       test('should return true at minimum WiFi signal threshold', () async {

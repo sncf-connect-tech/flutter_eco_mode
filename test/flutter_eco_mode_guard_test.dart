@@ -138,13 +138,16 @@ void main() {
     });
 
     test(
-      'hasEnoughNetwork returns null instead of throwing when getConnectivity fails',
+      'hasEnoughNetwork rethrows the converted exception when getConnectivity fails',
       () async {
         when(() => ecoModeApi.getConnectivity()).thenThrow(
           PlatformException(code: 'PERMISSION_DENIED', message: 'denied'),
         );
 
-        expect(await buildEcoMode().hasEnoughNetwork(), isNull);
+        await expectLater(
+          buildEcoMode().hasEnoughNetwork(),
+          throwsA(isA<EcoModePermissionDeniedException>()),
+        );
       },
     );
   });

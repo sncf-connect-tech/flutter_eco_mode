@@ -6,46 +6,57 @@ import 'package:flutter/services.dart';
 /// [PlatformException] with a specific `code`. This class (and its
 /// subclasses) turn that generic, stringly-typed error into a well-defined,
 /// catchable Dart type via [PlatformExceptionToEcoModeException].
-abstract class EcoModeException extends PlatformException {
-  EcoModeException({
-    required super.code,
-    required super.message,
-    super.details,
-  });
+sealed class EcoModeException implements Exception {
+  /// The native error code this exception was mapped from (e.g.
+  /// `STORAGE_ERROR`). Kept mainly for debugging/logging purposes; prefer
+  /// matching on the concrete exception type rather than this code.
+  final String code;
+
+  /// A human-readable description of the error, if the native side
+  /// provided one.
+  final String? message;
+
+  /// Extra, native-specific error details, if any.
+  final Object? details;
+
+  const EcoModeException({required this.code, this.message, this.details});
+
+  @override
+  String toString() => '$runtimeType($code, $message)';
 }
 
 /// Thrown when a native permission-related operation fails unexpectedly
 /// (e.g. a `SecurityException` while reading network capabilities on
 /// Android), independently of whether the permission was actually granted.
 final class EcoModePermissionException extends EcoModeException {
-  EcoModePermissionException({required super.message, super.details})
+  const EcoModePermissionException({super.message, super.details})
     : super(code: 'PERMISSION_ERROR');
 }
 
 /// Thrown when a required runtime permission has been denied by the user
 /// or has not been requested yet.
 final class EcoModePermissionDeniedException extends EcoModeException {
-  EcoModePermissionDeniedException({required super.message, super.details})
+  const EcoModePermissionDeniedException({super.message, super.details})
     : super(code: 'PERMISSION_DENIED');
 }
 
 /// Thrown on Android when a permission request is made while the plugin is
 /// not currently attached to an [Activity].
 final class EcoModeActivityNotAttachedException extends EcoModeException {
-  EcoModeActivityNotAttachedException({required super.message, super.details})
+  const EcoModeActivityNotAttachedException({super.message, super.details})
     : super(code: 'ACTIVITY_NOT_ATTACHED');
 }
 
 /// Thrown when the native platform fails to read storage information
 /// (total/free disk space).
 final class EcoModeStorageException extends EcoModeException {
-  EcoModeStorageException({required super.message, super.details})
+  const EcoModeStorageException({super.message, super.details})
     : super(code: 'STORAGE_ERROR');
 }
 
 /// Thrown when an unknown/unmapped native error occurs.
 final class EcoModeGenericException extends EcoModeException {
-  EcoModeGenericException({required super.message, super.details})
+  const EcoModeGenericException({super.message, super.details})
     : super(code: 'GENERIC_ERROR');
 }
 
