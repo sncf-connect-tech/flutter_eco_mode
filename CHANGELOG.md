@@ -11,7 +11,12 @@
 - **FIX**: `hasEnoughNetwork()` now rethrows native errors instead of silently returning `null`, for consistency with the rest of the API.
 - **FIX**: Fix deadlock issue on iOS event channels.
 - **FIX**: Simplify event channels implementation using Pigeon.
+- **FIX** (iOS): Fix `getEcoScore()` computing an integer division, which made `DeviceRange.midRange` unreachable (score could only be `0.0` or `1.0`).
+- **FIX** (iOS): Fix `getPlatformInfo()` returning the object's memory address (`UIDevice.current` description) instead of the device model/name.
+- **FIX** (Android): `getConnectivity()` no longer requires the phone-state permission for Wifi/Ethernet/no-network connectivity, only for cellular network type detection.
+- **FIX** (Android): `PermissionHandler.onRequestPermissionsResult` now correctly reports that the permission result was handled, and concurrent permission requests no longer leave a coroutine stuck forever.
 - **CHORE**: Replace the hand-rolled `CombineLatestStream` implementation with the `rxdart` package.
+- **CHORE**: Centralize native event channel names (Android/iOS) instead of duplicating them across each stream listener.
 - **CHORE**: Add CI job for Android build and tests, upgrade AGP.
 - **CHORE**: Add lefthook pre-commit hooks.
 
