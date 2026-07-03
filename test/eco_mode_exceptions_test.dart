@@ -52,6 +52,18 @@ void main() {
       expect(exception.message, 'unknown error');
       expect(exception, isA<EcoModeException>());
     });
+
+    test('toString returns the expected format', () {
+      final exception = EcoModeStorageException(
+        message: 'storage error',
+        details: {'path': '/data'},
+      );
+
+      expect(
+        exception.toString(),
+        'EcoModeException(STORAGE_ERROR, storage error, {path: /data})',
+      );
+    });
   });
 
   group('PlatformExceptionToEcoModeException', () {

@@ -22,7 +22,7 @@ sealed class EcoModeException implements Exception {
   const EcoModeException({required this.code, this.message, this.details});
 
   @override
-  String toString() => '$runtimeType($code, $message)';
+  String toString() => 'EcoModeException($code, $message, $details)';
 }
 
 /// Thrown when a native permission-related operation fails unexpectedly
